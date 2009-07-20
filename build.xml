@@ -77,7 +77,7 @@
              basedir="build/classes"
              includes="starschema/slm4j/Base64Coder.class,
                        starschema/slm4j/SignatureValidator.class,
-                       starschema/slm4j/LicenseGeneratorException.class" />
+                       starschema/slm4j/SlmException.class" />
     </target>
 
 </project>

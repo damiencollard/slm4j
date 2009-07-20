@@ -44,7 +44,6 @@ public class SlmException extends Exception {
      *
      * @return Error text
      */
-    @Override
     public String getMessage() {
         return message;
     }

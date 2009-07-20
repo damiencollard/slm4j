@@ -84,7 +84,6 @@ public class Main {
         Set parameterSet;
         Set parameterSetSign = new HashSet();
         Set parameterSetVerify = new HashSet();
-        String processType;
         String usageString[];
 
         try {
