@@ -1,6 +1,12 @@
 Starschema License Manager for java (slm4j)
 =========
 
+**GOAL**
+> This fork aims to introduce the ability to verify a license
+> from a stream and to fix other shortcomings of the API...
+
+---
+
 Slm4j project aimed to provide an easy-to-use, easy-to-implement license manager system for java projects.
 
 Basic functionality
