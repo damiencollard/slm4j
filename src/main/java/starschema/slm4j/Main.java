@@ -143,7 +143,8 @@ public class Main {
                 String inputFileName     = (String)parameters.get(PARAM_INPUTFILE);
 
                 SignatureValidator validator = new SignatureValidator();
-                if (validator.verifyLicense(publicKeyFileName, inputFileName)) {
+                String[] licenseLines = validator.verifyLicense(publicKeyFileName, inputFileName);
+                if (licenseLines != null) {
                     System.out.println("License is valid.");
                     System.exit(0);
                 } else {

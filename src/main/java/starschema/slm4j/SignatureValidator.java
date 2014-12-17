@@ -86,7 +86,10 @@ public class SignatureValidator {
         }
     }
 
-    public boolean verifyLicense(String publicKeyFile, String signedFile) throws SlmException {
+    /** Verifies a signed license file against a public key.
+     * Returns the license text lines if the license file is valid, null otherwise.
+     */
+    public String[] verifyLicense(String publicKeyFile, String signedFile) throws SlmException {
         try {
             PublicKey _publicKey = readPublicKey(publicKeyFile);
 
@@ -94,7 +97,10 @@ public class SignatureValidator {
             String[] licenseLines = extractLicense(lines);
             byte[]   licenseSig   = extractSignature(lines, _publicKey);
 
-            return verifyTextSignature(licenseLines, licenseSig, _publicKey);
+            if (verifyTextSignature(licenseLines, licenseSig, _publicKey))
+                return licenseLines;
+            else
+                return null;
         } catch (Exception e) {
             throw new SlmException("Error in signature verification: " + e.getMessage());
         }
