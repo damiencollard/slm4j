@@ -26,36 +26,33 @@ using DSA algorythm.
 Command line usage
 ------------------
 
-**NOTE** The current command lines feel a bit weird and will be improved upon.
-
 First, create the wrapper script by issuing command `sbt mksh` which creates
 script `bin/slm4j.sh`.
 
-The commandline usage can be printed with the `--help` or `-h` option.
+Get usage help with option `--help`:
 
-The following command signs file `input1.txt` and writes the result to `output1.txt`.
-If `test1.pub` (public key file) and `test1.pkf` (private key file) do not exist,
-then these files are automatically generated.
+    $ bin/slm4j.sh --help
 
-    $ bin/slm4j.sh sign -license input1.txt -public test1.pub -private test1.pkf -sign output1.txt
+Th following command signs file `unsigned.txt` using private key `test1.pkf`
+and writes the result to `signed.txt`.
 
-After the initial key generation, the generated key files are used for futher sign actions.
+    $ bin/slm4j.sh sign --private-key test1.pkf --input unsigned.txt --output signed.txt
 
-    $ bin/slm4j.sh sign -license input2.txt -public test1.pub -private test1.pkf -sign output2.txt
+And this command verifies that a signed file is valid (*i.e.*, has not been
+tampered with):
 
-To verify the generated keys use the "verify" action:
+    $ bin/slm4j.sh verify --public-key test1.pub --input signed.txt
+    License is valid.
 
-    $ bin/slm4j.sh verify -sign output1.txt -public test1.pub
-    License is valid
-    $ bin/slm4j.sh verify -sign output2.txt -public test1.pub
-    License is valid
+To check what happens if we modify the generated license file use your favourite
+editor and verify it:
 
-To check what happens if we modify the generated license file use our favourite editor and try it:
-
-    $ vim output2.txt
-    $ bin/slm4j.sh verify -sign output2.txt -public test1.pub
-    License is not valid
-
+    $ cp signed.txt tamperedWith.txt
+    $ vim tamperedWith.txt
+    $ bin/slm4j.sh verify --public-key test1.pub --input tamperedWith.txt
+    License is NOT valid.
+    $ echo $?
+    2
 
 Usage from java programs
 ------------------------
@@ -67,13 +64,15 @@ a hardcoded static private string in your license handler class) and import
 
 To check the input license file, issue:
 
+**FIXME** Update to modified API.
+
 ```java
      private static final String PUBLIC_KEY = "...";
 
      try {
        SignatureValidator validator = new SignatureValidator();
 
-       if ( validator.verifyLicenseWithString( PUBLIC_KEY, fileToValidate ) )
+       if (validator.verifyLicenseWithString( PUBLIC_KEY, fileToValidate))
          System.out.println("License is valid");
          System.out.println("Registred to: " + validator.getLicenseOptions().get("RegistredTo") );
        } else {
