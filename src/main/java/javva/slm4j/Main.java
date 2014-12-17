@@ -29,8 +29,10 @@
  */
 package starschema.slm4j;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /** Main class for slm4j command line tool
@@ -52,11 +54,36 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            executeApplication(args);
+            if (args.length == 0) {
+                System.err.println("Error: invalid commandline");
+                System.exit(1);
+            }
+            List<String> argList = Arrays.asList(args);
+            if (argList.contains("-h") || argList.contains("--help"))
+                printUsage();
+            else
+                executeApplication(args);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println(ex.getMessage());
         }
+    }
+
+    private static void printUsage() {
+        String usageString[] = new String[9];
+
+        usageString[0] = "Usage: java -jar SignatureCreator.jar <action> [parameters]";
+        usageString[1] = "\nActions:";
+        usageString[2] = "  sign                         Write a signature in in the signature file after the content of the source file.";
+        usageString[3] = "  verify                       Verifies a signature file based on the key file.";
+        usageString[4] = "\nParameters:";
+        usageString[5] = "  -license license_file        Source file to add signature.";
+        usageString[6] = "  -public public_key_file      Public key file. If sign then the public key will be written in this file. If verify then the verification will based on the public key stored in this file.";
+        usageString[7] = "  -private private_key_file    Private key file. Available only for sign. The private key will be stored in this file.";
+        usageString[8] = "  -sign signature_file         The signed license file. It is the output file of the sign and the input of the verification.";
+
+        for (int i = 0; i < usageString.length; i++)
+            System.out.println(usageString[i]);
     }
 
     /** Main entry function for slm4j command line tool
@@ -84,7 +111,6 @@ public class Main {
         Set parameterSet;
         Set parameterSetSign = new HashSet();
         Set parameterSetVerify = new HashSet();
-        String usageString[];
 
         try {
             parameterSetSign.add(PARAMETER_LICENSE);
@@ -94,24 +120,6 @@ public class Main {
 
             parameterSetVerify.add(PARAMETER_PUBLIC);
             parameterSetVerify.add(PARAMETER_SIGNATURE);
-
-            usageString = new String[9];
-
-            usageString[0] = "Usage: java -jar SignatureCreator.jar <action> [parameters]";
-            usageString[1] = "\nActions:";
-            usageString[2] = "  sign                         Write a signature in in the signature file after the content of the source file.";
-            usageString[3] = "  verify                       Verifies a signature file based on the key file.";
-            usageString[4] = "\nParameters:";
-            usageString[5] = "  -license license_file        Source file to add signature.";
-            usageString[6] = "  -public public_key_file      Public key file. If sign then the public key will be written in this file. If verify then the verification will based on the public key stored in this file.";
-            usageString[7] = "  -private private_key_file    Private key file. Available only for sign. The private key will be stored in this file.";
-            usageString[8] = "  -sign signature_file         The signed license file. It is the output file of the sign and the input of the verification.";
-
-            if (arguments.length == 0) {
-                for( int i = 0; i < usageString.length ; i++ )
-                    System.out.println( usageString[i]);
-                return false;
-            }
 
             if (arguments.length % 2 != 1) {
                 System.out.println("Wrong number of arguments");
