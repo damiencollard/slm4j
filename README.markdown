@@ -7,20 +7,28 @@ Starschema License Manager for java (slm4j)
 
 ---
 
-Slm4j project aimed to provide an easy-to-use, easy-to-implement license manager system for java projects.
+Slm4j project aimed to provide an easy-to-use, easy-to-implement license
+manager system for java projects.
 
 Basic functionality
 -------------------
 
-The project includes a command line tool to generate private and public keys for cryptographical signing, and a runtime class (or jar module) to validate the generated keys.
+The project includes a command line tool to generate private and public
+keys for cryptographical signing, and a runtime class (or jar module) to
+validate the generated keys.
 
-The signed data is an ASCII armored file, which could store date or time limitations, functionality restrictions or any user specified strings. The embedded license file validator ensures that file is not modified by using DSA algorythm.
+The signed data is an ASCII armored file, which could store date or time
+limitations, functionality restrictions or any user specified strings.
+The embedded license file validator ensures that file is not modified by
+using DSA algorythm.
 
 
 Command line usage
 ------------------
 
-The following command signs input1.txt file and writes the result to output1.txt. If test1.pub (public key file) and test1.pkf (private key file) do not exists, then these files are automatically generated.
+The following command signs input1.txt file and writes the result to output1.txt.
+If test1.pub (public key file) and test1.pkf (private key file) do not exists,
+then these files are automatically generated.
 
     $ java -jar SignatureCreator.jar  sign -license input1.txt -public test1.pub -private test1.pkf -sign output1.txt
 
@@ -45,7 +53,10 @@ To check what happens if we modify the generated license file use our favourite 
 Usage from java programs
 ------------------------
 
-To validate a user supplied license file in your application, you must include your public key file in the binary distribution (eg. in a hardcoded static private string in your license handler class) and import __SignatureValidator.jar__ file. To check the input license file, issue:
+To validate a user supplied license file in your application, you must include your public
+key file in the binary distribution (eg. in a hardcoded static private string in your
+license handler class) and import __SignatureValidator.jar__ file. To check the input
+license file, issue:
 
      private static final String PUBLIC_KEY = "...";
 
@@ -86,3 +97,4 @@ Any changes in license data will cause an invalid license exception.
   * [slm4j home](http://starschema.net/pages/en/support-a-downloads/trialproducts/license-manager)
   * [slm4j on github](http://github.com/starschema/slm4j/)
   * [Starschema Consulting](http://starschema.net/)
+
