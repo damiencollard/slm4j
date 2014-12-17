@@ -24,3 +24,18 @@ def makeShellScript(baseDir: File, classPath: Seq[Attributed[File]], className: 
   out.setExecutable(true)
   out
 }
+
+// Remove the _<scalaVersion> suffix from artifacts.
+crossPaths := false
+
+// Publish artifacts to Ubeeko's Nexus.
+publishMavenStyle in ThisBuild := true
+
+publishTo in ThisBuild := {
+  val nexus = "http://intra.ubeeko.lan/nexus/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots/")
+  else
+    Some("releases"  at nexus + "content/repositories/releases/")
+}
+
