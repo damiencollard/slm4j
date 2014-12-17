@@ -43,6 +43,8 @@ tampered with):
 
     $ bin/slm4j.sh verify --public-key test1.pub --input signed.txt
     License is valid.
+    $ echo $?
+    0
 
 To check what happens if we modify the generated license file use your favourite
 editor and verify it:
