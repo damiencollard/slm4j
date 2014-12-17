@@ -29,7 +29,7 @@ import java.io.*;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-/** Signs an input file with DSA algorythm
+/** Signs an input file with DSA algorithm.
  *
  * @author Gabor Toth
  */
