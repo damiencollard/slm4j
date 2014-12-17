@@ -38,8 +38,8 @@ public class SignatureCreator {
         try {
             _signature = Signature.getInstance("SHA1withDSA", "SUN");
             _signature.initSign(_privateKey);
-        } catch (Exception ex) {
-            throw new SlmException("Error in initializing signature: " + ex.getMessage());
+        } catch (Exception e) {
+            throw new SlmException("Error initializing signature: " + e.getMessage());
         }
 
         boolean inLicense = true;
@@ -51,8 +51,8 @@ public class SignatureCreator {
                 _signature.update(line.getBytes(), 0, line.getBytes().length);
             }
             return _signature;
-        } catch (Exception ex) {
-            throw new SlmException("Error in processing source file ( " + ex.getMessage() + " )");
+        } catch (Exception e) {
+            throw new SlmException("Error processing source file: " + e.getMessage());
         }
     }
 
@@ -78,7 +78,7 @@ public class SignatureCreator {
             try {
                 base64Sig = Base64Coder.encode(sig.sign());
             } catch (Exception ex) {
-                throw new SlmException("Error in signature creation: " + ex.getMessage());
+                throw new SlmException("Error computing the signature: " + ex.getMessage());
             }
 
             w.write(Delim.LICENSE_BEGIN);
@@ -104,7 +104,7 @@ public class SignatureCreator {
             w.write(EOL);
             w.write(Delim.SIGNATURE_END);
         } catch (Exception ex) {
-            throw new SlmException("Error in signature generation: " + ex.getMessage());
+            throw new SlmException("Error signing file: " + ex.getMessage());
         }
     }
 }
