@@ -109,7 +109,7 @@ public class Main {
             for (int i = 1; i < arguments.length; i++) {
                 // XXX Simplify this!
                 if (i % 2 == 1 && (!parameterSet.contains(arguments[i]) || parameters.containsKey(arguments[i]))) {
-                    System.err.println("Error: Invalid or duplicated parameter \"" + arguments[i] + "\"");
+                    System.err.println("Error: Invalid or duplicated parameter '" + arguments[i] + "'");
                     return false;
                 }
                 if (i % 2 == 0) {
