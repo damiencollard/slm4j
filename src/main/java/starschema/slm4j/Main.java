@@ -135,7 +135,7 @@ public class Main {
                 } catch (Exception e) {
                     throw new SlmException("Error: failed creating output file: " + e.getMessage());
                 } finally {
-                    try { w.close(); }
+                    try { if (w != null) w.close(); }
                     catch (Exception e) {}
                 }
             } else {
