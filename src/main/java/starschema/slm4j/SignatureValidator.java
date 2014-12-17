@@ -24,234 +24,79 @@
  */
 package starschema.slm4j;
 
-import java.io.*;
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.HashMap;
 
-/** Validates provided signature file using DSA algorithm
- *
- * @author Gabor Toth
- */
 public class SignatureValidator {
-
-    private PublicKey publicKey;
-    private Signature signature;
-    private String token = "=";
-    private StringBuffer licenseText = new StringBuffer();
-    private byte[] licenseSignature;
     private HashMap licenseOptions = new HashMap();
-    private static final String LICENSE_BEGIN = "----- BEGIN LICENSE -----";
-    private static final String LICENSE_END = "----- END LICENSE -----";
-    private static final String SIGNATURE_BEGIN = "----- BEGIN SIGNATURE -----";
-    private static final String SIGNATURE_END = "----- END SIGNATURE -----";
 
-
-    /**
-     * Get the value of license options (signed key-value pairs, if presents)
-     *
-     * @return key-value pairs of strings
-     */
     public HashMap getLicenseOptions() {
         return licenseOptions;
     }
 
-    /**
-     * Get the value of signed license contents
-     *
-     * @return the value of license contents
-     */
-    public String getLicenseText() {
-        return licenseText.toString();
+    private String[] extractLicense(String[] lines) throws SlmException {
+        return Util.extractLines(lines, Delim.LICENSE_BEGIN, Delim.LICENSE_END);
     }
 
-
-    /**
-     * Get the value of key-value separator token
-     *
-     * @return the value of key-value separator token
-     */
-    public String getToken() {
-        return token;
-    }
-
-    /**
-     * Set the value of the key-value separator token
-     *
-     * @param token new value of the token
-     */
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-
-    private void initializeSignatureVerify() throws SlmException {
+    private byte[] extractSignature(String[] lines, PublicKey _publicKey) throws SlmException {
+        Signature sig;
         try {
-            signature = Signature.getInstance("SHA1withDSA");
-            signature.initVerify(publicKey);
+            sig = Signature.getInstance("SHA1withDSA");
+            sig.initVerify(_publicKey);
         } catch (Exception ex) {
-            throw new SlmException("Error in initializing signature for verification ( " + ex.getMessage() + " )");
+            throw new SlmException("Error initializing signature: " + ex.getMessage());
+        }
+
+        String[] sigLines = Util.extractLines(lines, Delim.SIGNATURE_BEGIN, Delim.SIGNATURE_END);
+        StringBuilder sb = new StringBuilder();
+        for (String line: sigLines) {
+            sb.append(line);
+        }
+
+        return Base64Coder.decode(sb.toString());
+    }
+
+    public boolean verifyTextSignature(String[] lines, byte[] sig, PublicKey _publicKey) throws SlmException {
+        Signature computedSig;
+        try {
+            computedSig = Signature.getInstance("SHA1withDSA");
+            computedSig.initVerify(_publicKey);
+        } catch (Exception e) {
+            throw new SlmException("Error initializing signature: " + e.getMessage());
+        }
+
+        try {
+            for (String line: lines) {
+                computedSig.update(line.getBytes(), 0, line.getBytes().length);
+            }
+            return computedSig.verify(sig);
+        } catch (Exception e) {
+            throw new SlmException("Error computing signature: " + e.getMessage());
         }
     }
 
-    private void processSourceFile(String sourceFile) throws SlmException {
-        FileReader fileReader = null;
-        BufferedReader bufferedReader = null;
+    private PublicKey readPublicKey(String fileName) throws SlmException {
         try {
-            fileReader = new FileReader(sourceFile);
-            bufferedReader = new BufferedReader(fileReader);
-            boolean isLicense = true;
-            String line;
-            int index = 0;
-
-            isLicense = false;
-
-            while (bufferedReader.ready() && !isLicense) {
-                line = bufferedReader.readLine();
-                if (line.equals(LICENSE_BEGIN)) {
-                    isLicense = true;
-                }
-            }
-
-            while (bufferedReader.ready() && isLicense) {
-                line = bufferedReader.readLine();
-
-                if (!line.equals(LICENSE_END)) {
-                    signature.update(line.getBytes(), 0, line.getBytes().length);
-
-                    licenseText.append(line);
-                    licenseText.append(System.getProperty("line.separator"));
-                    index = line.indexOf(token);
-                    if ( index != -1 && index+1 <= line.length() )
-                        licenseOptions.put(line.substring(0,index), line.substring(index+1));
-                } else {
-                    isLicense = false;
-                }
-            }
-
-            licenseSignature = readSignature(bufferedReader);
-        } catch (Exception ex) {
-            throw new SlmException("Error in processing source file ( " + ex.getMessage() + " )");
-        } finally {
-            try {
-                bufferedReader.close();
-                fileReader.close();
-            } catch (Exception ex) {
-            }
+            String publicKeyString = Util.readFileContents(fileName, false);
+            return KeyFactory.getInstance("DSA").generatePublic(
+                    new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)));
+        } catch (Exception e) {
+            throw new SlmException("Error reading public key file: " + e.getMessage());
         }
     }
 
-    private boolean readPublicKey(String publicKeyFile) throws SlmException {
-        FileReader fileReader = null;
-        BufferedReader bufferedReader;
-
+    public boolean verifyLicense(String publicKeyFile, String signedFile) throws SlmException {
         try {
-            if (!new File(publicKeyFile).exists()) {
-                return false;
-            }
+            PublicKey _publicKey = readPublicKey(publicKeyFile);
 
-            String publicKeyString = "";
+            String[] lines = Util.readLines(signedFile);
+            String[] licenseLines = extractLicense(lines);
+            byte[]   licenseSig   = extractSignature(lines, _publicKey);
 
-            fileReader = new FileReader(publicKeyFile);
-            bufferedReader = new BufferedReader(fileReader);
-
-            while (bufferedReader.ready()) {
-                publicKeyString += bufferedReader.readLine();
-            }
-
-            publicKey = KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)));
-
-            return true;
-        } catch (Exception ex) {
-            throw new SlmException("Error in reading public key from file " + publicKeyFile + " ( " + ex.getMessage() + " )");
-        } finally {
-            try {
-                fileReader.close();
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-    private byte[] readSignature(BufferedReader bufferedReader) throws SlmException {
-        try {
-            boolean isSignature = false;
-            String line;
-            String signatureString = new String();
-
-            while (bufferedReader.ready() && !isSignature) {
-                line = bufferedReader.readLine();
-                if (line.equals(SIGNATURE_BEGIN)) {
-                    isSignature = true;
-                }
-            }
-
-            while (bufferedReader.ready() && isSignature) {
-                line = bufferedReader.readLine();
-                if (line.equals(SIGNATURE_END)) {
-                    isSignature = false;
-                } else {
-                    signatureString += line;
-                }
-            }
-
-            return Base64Coder.decode(signatureString);
-        } catch (Exception ex) {
-            throw new SlmException("Error in reading signature from file ( " + ex.getMessage() + " )");
-        }
-    }
-
-    private boolean verifySignature() throws SlmException {
-        try {
-            return signature.verify(licenseSignature);
-        } catch (Exception ex) {
-            throw new SlmException("Error in verification ( " + ex.getMessage() + " )");
-        }
-    }
-
-    /** Verifies a license file based on public DSA key
-     *
-     * @param publicKeyFile Public key file for checking
-     * @param signatureFile Signature file to check
-     * @return true when the signature file matches, otherwise false
-     * @throws SlmException Raised on IO or Crypthographic errors
-     */
-    public boolean verifyLicense(String publicKeyFile, String signatureFile) throws SlmException {
-        try {
-            readPublicKey(publicKeyFile);
-            initializeSignatureVerify();
-            processSourceFile(signatureFile);
-
-            if (verifySignature()) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception ex) {
-            throw new SlmException("Error in signature verification ( " + ex.getMessage() + " )");
-        }
-    }
-
-    /** Verifies a license file based on public DSA key
-     *
-     * @param publicKeyString Public key content for checking
-     * @param signatureFile Signature file to check
-     * @return true when the signature file matches, otherwise false
-     * @throws SlmException Raised on IO or Crypthographic errors
-     */
-    public boolean verifyLicenseWithString(String publicKeyString, String signatureFile) throws SlmException {
-        try {
-            publicKey = KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)));
-
-            initializeSignatureVerify();
-            processSourceFile(signatureFile);
-
-            if (verifySignature()) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception ex) {
-            throw new SlmException("Error in signature verification ( " + ex.getMessage() + " )");
+            return verifyTextSignature(licenseLines, licenseSig, _publicKey);
+        } catch (Exception e) {
+            throw new SlmException("Error in signature verification: " + e.getMessage());
         }
     }
 }

@@ -23,35 +23,21 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Starschema License Manager 4 Java - an easy-to-use, simple license file
- * generator and validator engine
- */
 package starschema.slm4j;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.FileWriter;
+import java.util.*;
 
-/** Main class for slm4j command line tool
- *
- * @author Gabor Toth
- */
 public class Main {
 
-    private static final String OPTION_SIGN = "sign";
-    private static final String OPTION_VERIFY = "verify";
-    private static final String PARAMETER_LICENSE = "-license";
-    private static final String PARAMETER_PUBLIC = "-public";
-    private static final String PARAMETER_PRIVATE = "-private";
-    private static final String PARAMETER_SIGNATURE = "-sign";
+    private static final String ACTION_SIGN   = "sign";
+    private static final String ACTION_VERIFY = "verify";
 
-    /**
-     *
-     * @param args
-     */
+    private static final String PARAM_INPUTFILE  = "--input";
+    private static final String PARAM_OUTPUTFILE = "--output";
+    private static final String PARAM_PUBLICKEY  = "--public-key";
+    private static final String PARAM_PRIVATEKEY = "--private-key";
+
     public static void main(String[] args) {
         try {
             if (args.length == 0) {
@@ -61,8 +47,10 @@ public class Main {
             List<String> argList = Arrays.asList(args);
             if (argList.contains("-h") || argList.contains("--help"))
                 printUsage();
-            else
-                executeApplication(args);
+            else {
+                boolean r = executeApplication(args);
+                System.exit(r ? 0 : 1);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             System.out.println(ex.getMessage());
@@ -70,42 +58,31 @@ public class Main {
     }
 
     private static void printUsage() {
-        String usageString[] = new String[9];
+        String self = "slm4j.sh";
+        String[] helpText = {
+            "Usage: " + self +" <action> [parameters]",
+            "",
+            "Sign a file using a private key:",
+            "",
+            "    " + self + " sign --private-key <key-file> --input <in-file> --output <out-file>",
+            "",
+            "        Sign file <in-file> using the private DSA key read from <key-file> and write the",
+            "        result in <out-file>.",
+            "",
+            "        Exit codes: 0 if the file is successfully signed, 1 on error.",
+            "",
+            "    " + self + " verify --public-key <key-file> --input <in-file>",
+            "",
+            "        Verifies that file <in-file> is properly signed, using the public DSA key read from",
+            "        <key-file>.",
+            "",
+            "        Exit codes: 0 if the license is valid, 2 if not, and 1 on error."
+        };
 
-        usageString[0] = "Usage: java -jar SignatureCreator.jar <action> [parameters]";
-        usageString[1] = "\nActions:";
-        usageString[2] = "  sign                         Write a signature in in the signature file after the content of the source file.";
-        usageString[3] = "  verify                       Verifies a signature file based on the key file.";
-        usageString[4] = "\nParameters:";
-        usageString[5] = "  -license license_file        Source file to add signature.";
-        usageString[6] = "  -public public_key_file      Public key file. If sign then the public key will be written in this file. If verify then the verification will based on the public key stored in this file.";
-        usageString[7] = "  -private private_key_file    Private key file. Available only for sign. The private key will be stored in this file.";
-        usageString[8] = "  -sign signature_file         The signed license file. It is the output file of the sign and the input of the verification.";
-
-        for (int i = 0; i < usageString.length; i++)
-            System.out.println(usageString[i]);
+        for (int i = 0; i < helpText.length; i++)
+            System.out.println(helpText[i]);
     }
 
-    /** Main entry function for slm4j command line tool
-     *<p>
-     * Usage: java -jar SignatureCreator.jar <action> [parameters]
-     *<p>
-     *   Actions:
-     *     sign                         Write a signature in in the signature file after
-     *                                  the content of the source file.
-     *     verify                       Verifies a signature file based on the key file.
-     *   Parameters:
-     *     -license license_file        Source file to add signature.
-     *     -public public_key_file      Public key file. If sign then the public key will
-     *                                  be written in this file. If verify then the verification
-     *                                  will based on the public key stored in this file.
-     *     -private private_key_file    Private key file. Available only for sign. The private
-     *                                  key will be stored in this file.
-     *     -sign signature_file         The signed license file. It is the output file of the sign
-     *                                  and the input of the verification.
-     * @param arguments Command line arguments
-     * @return true on success, otherwise false
-     */
     public static boolean executeApplication(String[] arguments) {
         HashMap parameters = new HashMap();
         Set parameterSet;
@@ -113,31 +90,26 @@ public class Main {
         Set parameterSetVerify = new HashSet();
 
         try {
-            parameterSetSign.add(PARAMETER_LICENSE);
-            parameterSetSign.add(PARAMETER_PUBLIC);
-            parameterSetSign.add(PARAMETER_PRIVATE);
-            parameterSetSign.add(PARAMETER_SIGNATURE);
+            parameterSetSign.add(PARAM_INPUTFILE);
+            parameterSetSign.add(PARAM_PRIVATEKEY);
+            parameterSetSign.add(PARAM_OUTPUTFILE);
 
-            parameterSetVerify.add(PARAMETER_PUBLIC);
-            parameterSetVerify.add(PARAMETER_SIGNATURE);
+            parameterSetVerify.add(PARAM_PUBLICKEY);
+            parameterSetVerify.add(PARAM_INPUTFILE);
 
-            if (arguments.length % 2 != 1) {
-                System.out.println("Wrong number of arguments");
-                return false;
-            }
-
-            if (arguments[0].toLowerCase().equals(OPTION_SIGN)) {
+            if (arguments[0].toLowerCase().equals(ACTION_SIGN)) {
                 parameterSet = parameterSetSign;
-            } else if (arguments[0].toLowerCase().equals(OPTION_VERIFY)) {
+            } else if (arguments[0].toLowerCase().equals(ACTION_VERIFY)) {
                 parameterSet = parameterSetVerify;
             } else {
-                System.out.println("Invalid option - Choose \"sign\", \"verify\"");
+                System.err.println("Invalid action");
                 return false;
             }
 
             for (int i = 1; i < arguments.length; i++) {
+                // XXX Simplify this!
                 if (i % 2 == 1 && (!parameterSet.contains(arguments[i]) || parameters.containsKey(arguments[i]))) {
-                    System.out.println("Invalid or duplicated parameter \"" + arguments[i] + "\"");
+                    System.err.println("Error: Invalid or duplicated parameter \"" + arguments[i] + "\"");
                     return false;
                 }
                 if (i % 2 == 0) {
@@ -146,18 +118,37 @@ public class Main {
             }
 
             if (parameterSet.size() != parameters.size()) {
-                System.out.println("All of the parameters must be set " + parameterSet);
+                System.err.println("Error: invalid commandline");
                 return false;
             }
 
-            if (arguments[0].equals(OPTION_SIGN)) {
-                new SignatureCreator().signLicense((String) parameters.get(PARAMETER_LICENSE), (String) parameters.get(PARAMETER_PUBLIC), (String) parameters.get(PARAMETER_PRIVATE), (String) parameters.get(PARAMETER_SIGNATURE));
+            if (arguments[0].equals(ACTION_SIGN)) {
+                String privateKeyFileName = (String)parameters.get(PARAM_PRIVATEKEY);
+                String inputFileName      = (String)parameters.get(PARAM_INPUTFILE);
+                String outputFileName     = (String)parameters.get(PARAM_OUTPUTFILE);
+
+                FileWriter w = null;
+                try {
+                    w = new FileWriter(outputFileName);
+                    SignatureCreator creator = new SignatureCreator();
+                    creator.signLicense(inputFileName, privateKeyFileName, w);
+                } catch (Exception e) {
+                    throw new SlmException("Error: failed creating output file: " + e.getMessage());
+                } finally {
+                    try { w.close(); }
+                    catch (Exception e) {}
+                }
             } else {
+                String publicKeyFileName = (String)parameters.get(PARAM_PUBLICKEY);
+                String inputFileName     = (String)parameters.get(PARAM_INPUTFILE);
+
                 SignatureValidator validator = new SignatureValidator();
-                if (validator.verifyLicense((String) parameters.get(PARAMETER_PUBLIC), (String) parameters.get(PARAMETER_SIGNATURE))) {
-                    System.out.println("License is valid");
+                if (validator.verifyLicense(publicKeyFileName, inputFileName)) {
+                    System.out.println("License is valid.");
+                    System.exit(0);
                 } else {
-                    System.out.println("License is not valid");                    
+                    System.out.println("License is NOT valid.");
+                    System.exit(2);
                 }
             }
 

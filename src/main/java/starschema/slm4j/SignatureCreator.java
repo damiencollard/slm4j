@@ -29,221 +29,82 @@ import java.io.*;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-/** Signs an input file with DSA algorithm.
- *
- * @author Gabor Toth
- */
 public class SignatureCreator {
-
-    private PublicKey publicKey;
-    private PrivateKey privateKey;
-    private Signature signature;
-    private String licenseText;
     private static final String EOL = System.getProperty("line.separator");
-    private static final String LICENSE_BEGIN = "----- BEGIN LICENSE -----";
-    private static final String LICENSE_END = "----- END LICENSE -----";
-    private static final String SIGNATURE_BEGIN = "----- BEGIN SIGNATURE -----";
-    private static final String SIGNATURE_END = "----- END SIGNATURE -----";
     private static final int SIGNATURE_LINE_LENGTH = 20;
 
-    private void generateKeys() throws SlmException {
+    private Signature computeTextSignature(String[] lines, PrivateKey _privateKey) throws SlmException {
+        Signature _signature;
         try {
-            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
-            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
-
-            keyGen.initialize(1024, random);
-            KeyPair pair = keyGen.generateKeyPair();
-            privateKey = pair.getPrivate();
-            publicKey = pair.getPublic();
+            _signature = Signature.getInstance("SHA1withDSA", "SUN");
+            _signature.initSign(_privateKey);
         } catch (Exception ex) {
-            throw new SlmException("Error in key generation ( " + ex.getMessage() + " )");
+            throw new SlmException("Error in initializing signature: " + ex.getMessage());
         }
-    }
 
-    private void initializeSignatureSign() throws SlmException {
+        boolean inLicense = true;
         try {
-            signature = Signature.getInstance("SHA1withDSA", "SUN");
-            signature.initSign(privateKey);
-        } catch (Exception ex) {
-            throw new SlmException("Error in initializing signature for signing ( " + ex.getMessage() + " )");
-        }
-    }
-
-    private void processSourceFile(String sourceFile) throws SlmException {
-        FileReader fileReader = null;
-        BufferedReader bufferedReader = null;
-        try {
-            fileReader = new FileReader(sourceFile);
-            bufferedReader = new BufferedReader(fileReader);
-            boolean isLicense = true;
-            String line;
-
-            licenseText = new String();
-
-            while (bufferedReader.ready() && isLicense) {
-                line = bufferedReader.readLine();
-                if (!line.equals(LICENSE_END)) {
-                    licenseText += line + EOL;
-                    signature.update(line.getBytes(), 0, line.getBytes().length);
-                } else {
-                    isLicense = false;
-                }
+            for (String line: lines) {
+                inLicense = !line.equals(Delim.LICENSE_END);
+                if (!inLicense)
+                    break;
+                _signature.update(line.getBytes(), 0, line.getBytes().length);
             }
-
+            return _signature;
         } catch (Exception ex) {
             throw new SlmException("Error in processing source file ( " + ex.getMessage() + " )");
-        } finally {
+        }
+    }
+
+    private PrivateKey readPrivateKey(String fileName) throws SlmException {
+        try {
+            String privateKeyString = Util.readFileContents(fileName, false);
+            return KeyFactory.getInstance("DSA", "SUN").generatePrivate(
+                    new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)));
+        } catch (Exception e) {
+            throw new SlmException("Error reading private key file: " + e.getMessage());
+        }
+    }
+
+    public void signLicense(String licenseFileName, String privateKeyFile, Writer w) throws SlmException {
+        try {
+            String[] lines = Util.readLines(licenseFileName);
+            PrivateKey _privateKey = readPrivateKey(privateKeyFile);
+
+            Signature sig = computeTextSignature(lines, _privateKey);
+
+            // Generate the Base64-encoded signature.
+            char[] base64Sig = null;
             try {
-                bufferedReader.close();
-                fileReader.close();
+                base64Sig = Base64Coder.encode(sig.sign());
             } catch (Exception ex) {
+                throw new SlmException("Error in signature creation: " + ex.getMessage());
             }
-        }
-    }
 
-    private char[] generateSignature() throws SlmException {
-        try {
-            return Base64Coder.encode(signature.sign());
-        } catch (Exception ex) {
-            throw new SlmException("Error in signature creation ( " + ex.getMessage() + " )");
-        }
-    }
+            w.write(Delim.LICENSE_BEGIN);
+            w.write(EOL);
+            for (String line: lines) {
+                w.write(line);
+                w.write(EOL);
+            }
+            w.write(EOL);
+            w.write(Delim.LICENSE_END);
+            w.write(EOL);
 
-    private void writeSignature(String signatureFile) throws SlmException {
-        FileWriter fileWriter = null;
-
-        try {
-            fileWriter = new FileWriter(signatureFile);
-            char[] signatureString = generateSignature();
-
-            fileWriter.write(LICENSE_BEGIN);
-            fileWriter.write(EOL + licenseText);
-            fileWriter.write(EOL + LICENSE_END);
-
-            fileWriter.write(EOL + SIGNATURE_BEGIN + EOL);
-
-            for (int i = 0; i < signatureString.length; i = i + SIGNATURE_LINE_LENGTH) {
-                fileWriter.write(signatureString, i, Math.min(signatureString.length - i, SIGNATURE_LINE_LENGTH));
-                if (signatureString.length - i > SIGNATURE_LINE_LENGTH) {
-                    fileWriter.write(EOL);
+            w.write(Delim.SIGNATURE_BEGIN); w.write(EOL);
+            for (int i = 0; i < base64Sig.length; i = i + SIGNATURE_LINE_LENGTH) {
+                w.write(base64Sig, i, Math.min(base64Sig.length - i, SIGNATURE_LINE_LENGTH));
+                if (base64Sig.length - i > SIGNATURE_LINE_LENGTH) {
+                    w.write(EOL);
                 }
             }
 
-            fileWriter.write(EOL + SIGNATURE_END);
+            // XXX Unchanged from old version of the library so as to keep
+            // compatibility with licenses generated by that old version.
+            w.write(EOL);
+            w.write(Delim.SIGNATURE_END);
         } catch (Exception ex) {
-            throw new SlmException("Error in writing signature to file " + signatureFile + " ( " + ex.getMessage() + " )");
-        } finally {
-            try {
-                fileWriter.close();
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-    private void writePrivateKey(String privateKeyFile) throws SlmException {
-        FileWriter fileWriter = null;
-
-        try {
-            byte[] encodedPrivateKey = privateKey.getEncoded();
-            fileWriter = new FileWriter(privateKeyFile);
-            char[] privateKeyString = Base64Coder.encode(encodedPrivateKey);
-
-            for (int i = 0; i < privateKeyString.length; i = i + SIGNATURE_LINE_LENGTH) {
-                fileWriter.write(privateKeyString, i, Math.min(privateKeyString.length - i, SIGNATURE_LINE_LENGTH));
-                if (privateKeyString.length - i > SIGNATURE_LINE_LENGTH) {
-                    fileWriter.write(EOL);
-                }
-            }
-        } catch (Exception ex) {
-            throw new SlmException("Error in writing private key to file " + privateKeyFile + " ( " + ex.getMessage() + " )");
-        } finally {
-            try {
-                fileWriter.close();
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-    private void writePublicKey(String publicKeyFile) throws SlmException {
-        FileWriter fileWriter = null;
-
-        try {
-            byte[] encodedPublicKey = publicKey.getEncoded();
-            fileWriter = new FileWriter(publicKeyFile);
-            char[] publicKeyString = Base64Coder.encode(encodedPublicKey);
-
-            for (int i = 0; i < publicKeyString.length; i = i + SIGNATURE_LINE_LENGTH) {
-                fileWriter.write(publicKeyString, i, Math.min(publicKeyString.length - i, SIGNATURE_LINE_LENGTH));
-                if (publicKeyString.length - i > SIGNATURE_LINE_LENGTH) {
-                    fileWriter.write(EOL);
-                }
-            }
-        } catch (Exception ex) {
-            throw new SlmException("Error in writing public key to file " + publicKeyFile + " ( " + ex.getMessage() + " )");
-        } finally {
-            try {
-                fileWriter.close();
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-    private boolean readPrivateKey(String privateKeyFile) throws SlmException {
-        FileReader fileReader = null;
-        BufferedReader bufferedReader;
-
-        try {
-            if (!new File(privateKeyFile).exists()) {
-                return false;
-            }
-
-            String privateKeyString = "";
-
-            fileReader = new FileReader(privateKeyFile);
-            bufferedReader = new BufferedReader(fileReader);
-
-            while (bufferedReader.ready()) {
-                privateKeyString += bufferedReader.readLine();
-            }
-
-            privateKey = KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)));
-
-            return true;
-        } catch (Exception ex) {
-            throw new SlmException("Error in reading private key from file " + privateKeyFile + " ( " + ex.getMessage() + " )");
-        } finally {
-            try {
-                fileReader.close();
-            } catch (Exception ex) {
-            }
-        }
-    }
-
-
-    /** Signs an input file by the provided DSA keys
-     *
-     * If the private key does not exists, then a new one will be generated
-     *
-     * @param licenseFile Input file to sign
-     * @param publicKeyFile Location of the previously generated public key file
-     * @param privateKeyFile Location of the previously generated private key file
-     * @param signatureFile Signed, output file (eg. user's license)
-     * @throws SlmException On any error (File IO problems and CryptoAPI errors)
-     */
-    public void signLicense(String licenseFile, String publicKeyFile, String privateKeyFile, String signatureFile) throws SlmException {
-        try {
-            if (!readPrivateKey(privateKeyFile)) {
-                generateKeys();
-            }
-            initializeSignatureSign();
-            processSourceFile(licenseFile);
-            writeSignature(signatureFile);
-            if (!readPrivateKey(privateKeyFile)) {
-                writePublicKey(publicKeyFile);
-                writePrivateKey(privateKeyFile);
-            }
-        } catch (Exception ex) {
-            throw new SlmException("Error in signature generation ( " + ex.getMessage() + " )");
+            throw new SlmException("Error in signature generation: " + ex.getMessage());
         }
     }
 }
