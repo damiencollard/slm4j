@@ -87,7 +87,6 @@ public class SignatureCreator {
                 w.write(line);
                 w.write(EOL);
             }
-            w.write(EOL);
             w.write(Delim.LICENSE_END);
             w.write(EOL);
 
