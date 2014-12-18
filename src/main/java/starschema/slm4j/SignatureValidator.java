@@ -57,7 +57,7 @@ public class SignatureValidator {
         return Base64Coder.decode(sb.toString());
     }
 
-    public boolean verifyTextSignature(String[] lines, byte[] sig, PublicKey _publicKey) throws SlmException {
+    private boolean verifyTextSignature(String[] lines, byte[] sig, PublicKey _publicKey) throws SlmException {
         Signature computedSig;
         try {
             computedSig = Signature.getInstance("SHA1withDSA");
