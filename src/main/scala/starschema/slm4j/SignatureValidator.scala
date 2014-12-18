@@ -58,13 +58,13 @@ class SignatureValidator {
   /** Verifies a signed license file against a public key.
    * Returns the license text lines on success.
    */
-  def verifyLicense(publicKeyFile: String, signedFile: String): Try[SignatureVerification] =
+  def verifyLicense(publicKeyFileName: String, signedFileName: String): Try[SignatureVerification] =
     for (
-      _publicKey   <- readPublicKey(publicKeyFile);
-      lines        <- readLines(signedFile);
+      _publicKey   <- readPublicKey(publicKeyFileName);
+      lines        <- readLines(signedFileName);
       licenseLines <- extractLicense(lines);
       licenseSig   <- extractSignature(lines, _publicKey);
-      ok            <- verifyTextSignature(licenseLines, licenseSig, _publicKey)
+      ok           <- verifyTextSignature(licenseLines, licenseSig, _publicKey)
     ) yield {
       if (ok) SignatureMatch(licenseLines) else SignatureMismatch
     }
