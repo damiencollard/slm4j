@@ -45,6 +45,9 @@ object Slm4jTool {
       |        Signs file <in-file> using the private DSA key read from <key-file> and write the
       |        result in <out-file>.
       |
+      |        Lines in the input file *cannot* start with '${Delim.delimMarker}', the marker
+      |        used in signed files.
+      |
       |        Exit codes: 0 if the file is successfully signed, 1 on error.
       |
       |* Verify a file using a public key:
