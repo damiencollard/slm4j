@@ -88,6 +88,7 @@ public class SignatureCreator {
             w.write(Util.EOL);
 
             w.write(Delim.SIGNATURE_BEGIN); w.write(Util.EOL);
+            // Write using same formatting as for keys.
             KeyUtil.writeKey(base64Sig, w);
             w.write(Util.EOL);
             w.write(Delim.SIGNATURE_END);
