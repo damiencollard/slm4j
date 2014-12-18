@@ -30,13 +30,15 @@ import java.util.*;
 
 public class Main {
 
-    private static final String ACTION_SIGN   = "sign";
-    private static final String ACTION_VERIFY = "verify";
+    private static final String ACTION_SIGN    = "sign";
+    private static final String ACTION_VERIFY  = "verify";
+    private static final String ACTION_GENKEYS = "genkeys";
 
     private static final String PARAM_INPUTFILE  = "--input";
     private static final String PARAM_OUTPUTFILE = "--output";
     private static final String PARAM_PUBLICKEY  = "--public-key";
     private static final String PARAM_PRIVATEKEY = "--private-key";
+    private static final String PARAM_BASENAME   = "--base-name";
 
     public static void main(String[] args) {
         try {
@@ -62,23 +64,30 @@ public class Main {
         String[] helpText = {
             "Usage: " + self +" <action> [parameters]",
             "",
-            "Sign a file using a private key:",
+            "* Sign a file using a private key:",
             "",
             "    " + self + " sign --private-key <key-file> --input <in-file> --output <out-file>",
             "",
-            "        Sign file <in-file> using the private DSA key read from <key-file> and write the",
+            "        Signs file <in-file> using the private DSA key read from <key-file> and write the",
             "        result in <out-file>.",
             "",
             "        Exit codes: 0 if the file is successfully signed, 1 on error.",
             "",
-            "Verify a file using a public key:",
+            "* Verify a file using a public key:",
             "",
             "    " + self + " verify --public-key <key-file> --input <in-file>",
             "",
             "        Verifies that file <in-file> is properly signed, using the public DSA key read from",
             "        <key-file>.",
             "",
-            "        Exit codes: 0 if the license is valid, 2 if not, and 1 on error."
+            "        Exit codes: 0 if the license is valid, 2 if not, and 1 on error.",
+            "",
+            "* Generate a public/private key pair:",
+            "",
+            "    " + self + " genkeys --base-name <base-name>",
+            "",
+            "        Generates private key <base-name> and public key <base-name>.pub.",
+            "        DO NOT SHARE THE PRIVATE KEY."
         };
 
         for (int i = 0; i < helpText.length; i++)
@@ -90,6 +99,7 @@ public class Main {
         Set parameterSet;
         Set parameterSetSign = new HashSet();
         Set parameterSetVerify = new HashSet();
+        Set parameterSetGenKeys = new HashSet();
 
         try {
             parameterSetSign.add(PARAM_INPUTFILE);
@@ -99,10 +109,14 @@ public class Main {
             parameterSetVerify.add(PARAM_PUBLICKEY);
             parameterSetVerify.add(PARAM_INPUTFILE);
 
-            if (arguments[0].toLowerCase().equals(ACTION_SIGN)) {
+            parameterSetGenKeys.add(PARAM_BASENAME);
+
+            if (arguments[0].equals(ACTION_SIGN)) {
                 parameterSet = parameterSetSign;
-            } else if (arguments[0].toLowerCase().equals(ACTION_VERIFY)) {
+            } else if (arguments[0].equals(ACTION_VERIFY)) {
                 parameterSet = parameterSetVerify;
+            } else if (arguments[0].equals(ACTION_GENKEYS)) {
+                parameterSet = parameterSetGenKeys;
             } else {
                 System.err.println("Invalid action");
                 return false;
@@ -140,7 +154,7 @@ public class Main {
                     try { if (w != null) w.close(); }
                     catch (Exception e) {}
                 }
-            } else {
+            } else if (arguments[0].equals(ACTION_VERIFY)) {
                 String publicKeyFileName = (String)parameters.get(PARAM_PUBLICKEY);
                 String inputFileName     = (String)parameters.get(PARAM_INPUTFILE);
 
@@ -153,6 +167,11 @@ public class Main {
                     System.out.println("License is NOT valid.");
                     System.exit(2);
                 }
+            } else /* ACTION_GENKEYS */ {
+                String baseName = (String)parameters.get(PARAM_BASENAME);
+                String privateKeyFileName = baseName;
+                String publicKeyFileName  = baseName + ".pub";
+                KeyUtil.generateKeys(privateKeyFileName, publicKeyFileName);
             }
 
             return true;
