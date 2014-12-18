@@ -15,9 +15,7 @@ object KeyUtil {
     def genKeyPair(): Try[(PrivateKey, PublicKey)] = Try {
       val gen = KeyPairGenerator.getInstance("DSA", "SUN")
       val random = SecureRandom.getInstance("SHA1PRNG", "SUN")
-
       gen.initialize(1024, random)
-
       val kp = gen.generateKeyPair()
       (kp.getPrivate, kp.getPublic)
     } recoverWith {
