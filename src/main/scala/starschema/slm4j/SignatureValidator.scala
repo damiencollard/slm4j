@@ -6,14 +6,14 @@ import java.security.spec.X509EncodedKeySpec
 import scala.util.{Success, Try, Failure}
 import scala.util.control.NonFatal
 
-object SignatureValidator2 {
+object SignatureValidator {
   sealed trait SignatureVerification
   case class SignatureMatch(lines: Array[String]) extends SignatureVerification
   case object SignatureMismatch extends SignatureVerification
 }
 
-class SignatureValidator2 {
-  import SignatureValidator2._
+class SignatureValidator {
+  import SignatureValidator._
 
   private def extractLicense(lines: Array[String]): Try[Array[String]] =
     Success(Util2.extractLines(lines, Delim.LICENSE_BEGIN, Delim.LICENSE_END))

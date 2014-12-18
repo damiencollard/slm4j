@@ -4,7 +4,7 @@ import scala.collection.mutable
 import scala.util.{Success, Failure}
 import scala.util.control.NonFatal
 
-import SignatureValidator2.{SignatureMatch, SignatureMismatch}
+import SignatureValidator.{SignatureMatch, SignatureMismatch}
 
 object Slm4jTool {
   private val ACTION_SIGN    = "sign"
@@ -122,7 +122,7 @@ object Slm4jTool {
         val publicKeyFileName = parameters(PARAM_PUBLICKEY)
         val inputFileName     = parameters(PARAM_INPUTFILE)
 
-        val validator = new SignatureValidator2
+        val validator = new SignatureValidator
         validator.verifyLicense(publicKeyFileName, inputFileName) match {
           case Success(SignatureMatch(_)) => println("License is valid."); System.exit(0)
           case Success(SignatureMismatch) => println("License is NOT valid."); System.exit(2)
