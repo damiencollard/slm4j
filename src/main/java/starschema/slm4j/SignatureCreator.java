@@ -88,12 +88,7 @@ public class SignatureCreator {
             w.write(Util.EOL);
 
             w.write(Delim.SIGNATURE_BEGIN); w.write(Util.EOL);
-            for (int i = 0; i < base64Sig.length; i = i + KeyUtil.SIGNATURE_LINE_LENGTH) {
-                w.write(base64Sig, i, Math.min(base64Sig.length - i, KeyUtil.SIGNATURE_LINE_LENGTH));
-                if (base64Sig.length - i > KeyUtil.SIGNATURE_LINE_LENGTH) {
-                    w.write(Util.EOL);
-                }
-            }
+            KeyUtil.writeKey(base64Sig, w);
             w.write(Util.EOL);
             w.write(Delim.SIGNATURE_END);
         } catch (Exception ex) {
