@@ -11,13 +11,37 @@ import Delim._
 import Util2._
 
 class SignatureCreator {
-  private def computeTextSignature(lines: Array[String], privateKey: PrivateKey): Try[Signature] = Try {
+  def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String): Try[Unit] = {
+    def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>
+      signLicense(licenseFileName, privateKeyFileName, writer) map { _ => writer.close() } recoverWith {
+        case NonFatal(e) =>
+          writer.close()
+          Failure(e)
+      }
+    }
+    for (_ <- checkPresent(licenseFileName);
+         _ <- checkPresent(privateKeyFileName);
+         _ <- checkAbsent(outputFileName);
+         _ <- doSign())
+    yield ()
+  }
+
+  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer): Try[Unit] = {
+    for (
+      privateKey   <- readPrivateKey(privateKeyFileName);
+      unsignedText <- readUnsignedText(licenseFileName);
+      signedText   <- signText(unsignedText, privateKey);
+      _            <- writeSignedText(signedText, w)
+    ) yield ()
+  }
+
+  private def signText(unsignedText: UnsignedText, privateKey: PrivateKey): Try[SignedText] = Try {
     val signature = Signature.getInstance("SHA1withDSA", "SUN")
     signature.initSign(privateKey)
-    lines foreach { line =>
+    unsignedText.lines foreach { line =>
       signature.update(line.getBytes, 0, line.getBytes.length)
     }
-    signature
+    SignedText(unsignedText.lines, signature)
   } recoverWith {
     case NonFatal(e) =>
       Failure(new SlmException("Error processing source file: " + e.getMessage))
@@ -32,54 +56,27 @@ class SignatureCreator {
         Failure(new SlmException("Error reading private key file: " + e.getMessage))
     }
 
-  private def checkText(lines: Array[String]): Try[Unit] =
-    // The lines *must not* start with the delimiter marker.
-    if (lines forall (!_.startsWith(delimMarker)))
-      Success(())
-    else
-      Failure(new SlmException("Delimiters can't appear in the input text"))
+  private def readUnsignedText(fileName: String): Try[UnsignedText] =
+    readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }
 
-  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer): Try[Unit] = {
-    def save(lines: Array[String], base64Sig: Array[Char]): Try[Unit] = Try {
-      w.write(LICENSE_BEGIN)
-      w.write(EOL)
-      lines foreach { line =>
-        w.write(line)
-        w.write(EOL)
-      }
-      w.write(LICENSE_END)
-      w.write(EOL)
+  private def writeSignedText(signedText: SignedText, w: Writer): Try[Unit] = Try {
+    val base64Sig = Base64Coder.encode(signedText.signature.sign())
 
-      w.write(SIGNATURE_BEGIN)
+    w.write(LICENSE_BEGIN)
+    w.write(EOL)
+    signedText.lines foreach { line =>
+      w.write(line)
       w.write(EOL)
-
-      // Write using same formatting as for keys.
-      KeyUtil.writeKey(base64Sig, w)
-      w.write(EOL)
-      w.write(SIGNATURE_END)
     }
-    for (
-      privateKey <- readPrivateKey(privateKeyFileName);
-      lines      <- Util2.readLines(licenseFileName);
-      _          <- checkText(lines);
-      sig        <- computeTextSignature(lines, privateKey);
-      base64Sig   = Base64Coder.encode(sig.sign());
-      _          <- save(lines, base64Sig)
-    ) yield ()
-  }
+    w.write(LICENSE_END)
+    w.write(EOL)
 
-  def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String): Try[Unit] = {
-    def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>
-      signLicense(licenseFileName, privateKeyFileName, writer) map { _ => writer.close() } recoverWith {
-        case NonFatal(e) =>
-          writer.close()
-          Failure(e)
-      }
-    }
-    for (_ <- checkPresent(licenseFileName);
-         _ <- checkPresent(privateKeyFileName);
-         _ <- checkAbsent(outputFileName);
-         _ <- doSign())
-      yield ()
+    w.write(SIGNATURE_BEGIN)
+    w.write(EOL)
+
+    // Write using same formatting as for keys.
+    KeyUtil.writeKey(base64Sig, w)
+    w.write(EOL)
+    w.write(SIGNATURE_END)
   }
 }
