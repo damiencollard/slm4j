@@ -88,14 +88,11 @@ object Slm4jTool {
 
       parameterSetGenKeys.add(PARAM_BASENAME)
 
-      if (arguments(0) == ACTION_SIGN) {
-        parameterSet = parameterSetSign
-      } else if (arguments(0) == ACTION_VERIFY) {
-        parameterSet = parameterSetVerify
-      } else if (arguments(0) == ACTION_GENKEYS) {
-        parameterSet = parameterSetGenKeys
-      } else {
-        errorExit("Invalid action")
+      arguments(0) match {
+        case ACTION_SIGN    => parameterSet = parameterSetSign
+        case ACTION_VERIFY  => parameterSet = parameterSetVerify
+        case ACTION_GENKEYS => parameterSet = parameterSetGenKeys
+        case _              => errorExit("Invalid action")
       }
 
       for (i <- 1 until arguments.length) {
