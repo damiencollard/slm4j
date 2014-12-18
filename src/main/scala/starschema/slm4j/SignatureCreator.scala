@@ -11,20 +11,20 @@ import Delim._
 import Util2._
 
 class SignatureCreator {
-  private def computeTextSignature(lines: Array[String], _privateKey: PrivateKey): Try[Signature] = Try {
-    val _signature = Signature.getInstance("SHA1withDSA", "SUN")
-    _signature.initSign(_privateKey)
+  private def computeTextSignature(lines: Array[String], privateKey: PrivateKey): Try[Signature] = Try {
+    val signature = Signature.getInstance("SHA1withDSA", "SUN")
+    signature.initSign(privateKey)
     lines foreach { line =>
-      _signature.update(line.getBytes, 0, line.getBytes.length)
+      signature.update(line.getBytes, 0, line.getBytes.length)
     }
-    _signature
+    signature
   } recoverWith {
     case NonFatal(e) =>
       Failure(new SlmException("Error processing source file: " + e.getMessage))
   }
 
   private def readPrivateKey(fileName: String): Try[PrivateKey] =
-    readFileContents(fileName, false) map { privateKeyString =>
+    readFileContents(fileName, keepLines = false) map { privateKeyString =>
       KeyFactory.getInstance("DSA", "SUN").generatePrivate(
         new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
     } recoverWith {
@@ -59,12 +59,12 @@ class SignatureCreator {
       w.write(SIGNATURE_END)
     }
     for (
-      lines       <- Util2.readLines(licenseFileName);
-      _           <- checkText(lines);
-      _privateKey <- readPrivateKey(privateKeyFileName);
-      sig         <- computeTextSignature(lines, _privateKey);
-      base64Sig    = Base64Coder.encode(sig.sign());
-      _           <- save(lines, base64Sig)
+      privateKey <- readPrivateKey(privateKeyFileName);
+      lines      <- Util2.readLines(licenseFileName);
+      _          <- checkText(lines);
+      sig        <- computeTextSignature(lines, privateKey);
+      base64Sig   = Base64Coder.encode(sig.sign());
+      _          <- save(lines, base64Sig)
     ) yield ()
   }
 

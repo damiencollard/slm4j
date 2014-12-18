@@ -21,9 +21,9 @@ class SignatureValidator {
   private def extractLicense(lines: Array[String]): Try[Array[String]] =
     Success(extractLines(lines, LICENSE_BEGIN, LICENSE_END))
 
-  private def extractSignature(lines: Array[String], _publicKey: PublicKey): Try[Array[Byte]] = Try {
+  private def extractSignature(lines: Array[String], publicKey: PublicKey): Try[Array[Byte]] = Try {
     val sig = Signature.getInstance("SHA1withDSA")
-    sig.initVerify(_publicKey)
+    sig.initVerify(publicKey)
 
     val sigLines = extractLines(lines, SIGNATURE_BEGIN, SIGNATURE_END)
     val sb = new StringBuilder
@@ -35,10 +35,10 @@ class SignatureValidator {
       Failure(new SlmException("Error initializing signature: " + e.getMessage))
   }
 
-  private def verifyTextSignature(lines: Array[String], sig: Array[Byte], _publicKey: PublicKey): Try[Boolean] =
+  private def verifyTextSignature(lines: Array[String], sig: Array[Byte], publicKey: PublicKey): Try[Boolean] =
     Try {
       val computedSig = Signature.getInstance("SHA1withDSA")
-      computedSig.initVerify(_publicKey)
+      computedSig.initVerify(publicKey)
       lines foreach { line => computedSig.update(line.getBytes, 0, line.getBytes.length) }
       computedSig.verify(sig)
     } recoverWith {
@@ -60,11 +60,11 @@ class SignatureValidator {
    */
   def verifyLicense(publicKeyFileName: String, signedFileName: String): Try[SignatureVerification] =
     for (
-      _publicKey   <- readPublicKey(publicKeyFileName);
+      publicKey   <- readPublicKey(publicKeyFileName);
       lines        <- readLines(signedFileName);
       licenseLines <- extractLicense(lines);
-      licenseSig   <- extractSignature(lines, _publicKey);
-      ok           <- verifyTextSignature(licenseLines, licenseSig, _publicKey)
+      licenseSig   <- extractSignature(lines, publicKey);
+      ok           <- verifyTextSignature(licenseLines, licenseSig, publicKey)
     ) yield {
       if (ok) SignatureMatch(licenseLines) else SignatureMismatch
     }
