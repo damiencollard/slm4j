@@ -36,11 +36,10 @@ class SignatureCreator {
     // The lines *must not* start with the delimiter marker.
     if (lines forall (!_.startsWith(delimMarker)))
       Success(())
-    else {
+    else
       Failure(new SlmException("Delimiters can't appear in the input text"))
-    }
 
-  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer): Try[Unit] = Try {
+  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer): Try[Unit] = {
     def save(lines: Array[String], base64Sig: Array[Char]): Try[Unit] = Try {
       w.write(LICENSE_BEGIN)
       w.write(EOL)
