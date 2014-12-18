@@ -26,15 +26,8 @@ package starschema.slm4j;
 
 import java.security.*;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.HashMap;
 
 public class SignatureValidator {
-    private HashMap licenseOptions = new HashMap();
-
-    public HashMap getLicenseOptions() {
-        return licenseOptions;
-    }
-
     private String[] extractLicense(String[] lines) throws SlmException {
         return Util.extractLines(lines, Delim.LICENSE_BEGIN, Delim.LICENSE_END);
     }
