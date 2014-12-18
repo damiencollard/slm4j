@@ -22,7 +22,6 @@ limitations, functionality restrictions or any user specified strings.
 The embedded license file validator ensures that file is not modified by
 using DSA algorythm.
 
-
 Command line usage
 ------------------
 
@@ -33,21 +32,22 @@ Get usage help with option `--help`:
 
     $ bin/slm4j.sh --help
 
-Th following command signs file `unsigned.txt` using private key `test1.pkf`
-and writes the result to `signed.txt`.
+To create a private/public key pair in files `test1` and `test1.pub`, respectively:
 
-    $ bin/slm4j.sh sign --private-key test1.pkf --input unsigned.txt --output signed.txt
+    $ bin/slm4j.sh genkeys --base-name test1
 
-And this command verifies that a signed file is valid (*i.e.*, has not been
-tampered with):
+To sign file `unsigned.txt` using private key `test1` and write the result to `signed.txt`.
+
+    $ bin/slm4j.sh sign --private-key test1 --input unsigned.txt --output signed.txt
+
+To verify that signed file `signed.txt` is valid (*i.e.*, has not been tampered with):
 
     $ bin/slm4j.sh verify --public-key test1.pub --input signed.txt
     License is valid.
     $ echo $?
     0
 
-To check what happens if we modify the generated license file use your favourite
-editor and verify it:
+Let's check what happens if we modify a signed file:
 
     $ cp signed.txt tamperedWith.txt
     $ vim tamperedWith.txt
