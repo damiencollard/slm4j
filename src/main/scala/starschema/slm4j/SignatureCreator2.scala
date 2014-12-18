@@ -46,7 +46,7 @@ class SignatureCreator2 {
       w.write(Util2.EOL)
 
       // Write using same formatting as for keys.
-      KeyUtil.writeKey(base64Sig, w)
+      KeyUtil2.writeKey(base64Sig, w)
       w.write(Util2.EOL)
       w.write(Delim.SIGNATURE_END)
     }
