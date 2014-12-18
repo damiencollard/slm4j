@@ -66,6 +66,7 @@ object Slm4jTool {
   }
 
   private def executeApplication(arguments: Array[String]): Unit = {
+    // XXX Simplify the handling of parameters!
     val parameters = mutable.HashMap.empty[String, String]
 
     val parameterSetSign    = mutable.HashSet.empty[String]
