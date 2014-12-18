@@ -79,6 +79,7 @@ public class SignatureValidator {
         }
     }
 
+    // FIXME Don't return null, return Try[]
     /** Verifies a signed license file against a public key.
      * Returns the license text lines if the license file is valid, null otherwise.
      */
