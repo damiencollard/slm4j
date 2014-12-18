@@ -11,23 +11,21 @@ import Util2._
 
 object SignatureValidator {
   sealed trait SignatureVerification
-  case class SignatureMatch(lines: Array[String]) extends SignatureVerification
+  case class SignatureMatch(text: Text) extends SignatureVerification
   case object SignatureMismatch extends SignatureVerification
 }
 
 class SignatureValidator {
   import SignatureValidator._
 
-  /** Verifies a signed license file against a public key.
-    * Returns the license text lines on success.
-    */
+  /** Verifies a signed license file against a public key. */
   def verifyLicense(signedFileName: String, publicKeyFileName: String): Try[SignatureVerification] =
     for (
       publicKey    <- readPublicKey(publicKeyFileName);
       signedText   <- readSignedText(signedFileName, publicKey);
       ok           <- verifySignedText(signedText, publicKey)
     ) yield {
-      if (ok) SignatureMatch(signedText.lines) else SignatureMismatch
+      if (ok) SignatureMatch(signedText) else SignatureMismatch
     }
 
   def readPublicKey(fileName: String): Try[PublicKey] =
