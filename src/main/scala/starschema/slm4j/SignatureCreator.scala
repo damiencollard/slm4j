@@ -4,7 +4,7 @@ import java.io._
 import java.security._
 import java.security.spec.PKCS8EncodedKeySpec
 
-import scala.util.{Failure, Try}
+import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
 
 import Delim._
@@ -14,9 +14,7 @@ class SignatureCreator {
   private def computeTextSignature(lines: Array[String], _privateKey: PrivateKey): Try[Signature] = Try {
     val _signature = Signature.getInstance("SHA1withDSA", "SUN")
     _signature.initSign(_privateKey)
-    // FIXME This takes the LICENSE_BEGIN line into account, but I think
-    // it was this way with the original library => CHECK IT!
-    lines.takeWhile(_ != LICENSE_END) foreach { line =>
+    lines foreach { line =>
       _signature.update(line.getBytes, 0, line.getBytes.length)
     }
     _signature
@@ -32,6 +30,14 @@ class SignatureCreator {
     } recoverWith {
       case NonFatal(e) =>
         Failure(new SlmException("Error reading private key file: " + e.getMessage))
+    }
+
+  private def checkText(lines: Array[String]): Try[Unit] =
+    // The lines *must not* start with the delimiter marker.
+    if (lines forall (!_.startsWith(delimMarker)))
+      Success(())
+    else {
+      Failure(new SlmException("Delimiters can't appear in the input text"))
     }
 
   def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer): Try[Unit] = Try {
@@ -55,6 +61,7 @@ class SignatureCreator {
     }
     for (
       lines       <- Util2.readLines(licenseFileName);
+      _           <- checkText(lines);
       _privateKey <- readPrivateKey(privateKeyFileName);
       sig         <- computeTextSignature(lines, _privateKey);
       base64Sig    = Base64Coder.encode(sig.sign());

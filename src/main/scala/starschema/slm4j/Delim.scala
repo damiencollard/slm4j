@@ -6,5 +6,7 @@ object Delim {
     val SIGNATURE_BEGIN = delim("BEGIN SIGNATURE")
     val SIGNATURE_END   = delim("END SIGNATURE")
 
-    private def delim(s: String) = s"----- $s -----"
+    private def delim(s: String) = s"$delimMarker $s $delimMarker"
+
+    val delimMarker = "-----"
 }
