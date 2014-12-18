@@ -1,7 +1,5 @@
 package starschema.slm4j;
 
-import java.util.ArrayList
-
 import scala.util.{Failure, Try}
 import scala.util.control.NonFatal
 
@@ -11,7 +9,7 @@ object Util2 {
   /** Returns the lines of a file. */
   def readLines(fileName: String): Try[Array[String]] = Try {
     val source = scala.io.Source.fromFile(fileName)
-    source.getLines.toArray
+    source.getLines().toArray
   } recoverWith {
     case NonFatal(e) =>
       Failure(new SlmException("Error reading file: " + e.getMessage))
