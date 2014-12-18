@@ -55,7 +55,7 @@ object KeyUtil2 {
       for (i <- 0 until key.length by SIGNATURE_LINE_LENGTH) {
         w.write(key, i, Math.min(key.length - i, SIGNATURE_LINE_LENGTH))
         if (key.length - i > SIGNATURE_LINE_LENGTH)
-          w.write(Util.EOL)
+          w.write(Util2.EOL)
       }
     } recoverWith {
       case NonFatal(e) =>
