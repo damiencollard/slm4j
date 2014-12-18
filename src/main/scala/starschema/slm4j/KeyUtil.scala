@@ -7,7 +7,7 @@ import java.security._
 import scala.util.{Failure, Try}
 import scala.util.control.NonFatal
 
-object KeyUtil2 {
+object KeyUtil {
   /** Length of a key line. */
   val SIGNATURE_LINE_LENGTH = 20
 

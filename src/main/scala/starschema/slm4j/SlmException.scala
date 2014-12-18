@@ -23,16 +23,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package starschema.slm4j;
+package starschema.slm4j
 
-public class SlmException extends Exception {
-    private String message;
-
-    public SlmException(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-}
+/** Exception raised by the slm4j library. */
+class SlmException(msg: String) extends Exception(msg)
