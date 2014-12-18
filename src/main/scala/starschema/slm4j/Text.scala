@@ -11,4 +11,4 @@ case class UnsignedText(lines: Array[String]) extends Text {
     throw new SlmException("Unsigned text contains a line with a license marker")
 }
 
-case class SignedText(lines: Array[String], signature: Signature) extends Text
+case class SignedText(lines: Array[String], signature: Array[Byte]) extends Text

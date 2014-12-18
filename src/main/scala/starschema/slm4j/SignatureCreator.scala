@@ -41,7 +41,7 @@ class SignatureCreator {
     unsignedText.lines foreach { line =>
       signature.update(line.getBytes, 0, line.getBytes.length)
     }
-    SignedText(unsignedText.lines, signature)
+    SignedText(unsignedText.lines, signature.sign())
   } recoverWith {
     case NonFatal(e) =>
       Failure(new SlmException("Error processing source file: " + e.getMessage))
@@ -60,7 +60,7 @@ class SignatureCreator {
     readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }
 
   private def writeSignedText(signedText: SignedText, w: Writer): Try[Unit] = Try {
-    val base64Sig = Base64Coder.encode(signedText.signature.sign())
+    val base64Sig = Base64Coder.encode(signedText.signature)
 
     w.write(LICENSE_BEGIN)
     w.write(EOL)

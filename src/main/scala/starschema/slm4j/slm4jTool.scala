@@ -124,7 +124,7 @@ object Slm4jTool {
         val inputFileName     = parameters(PARAM_INPUTFILE)
 
         val validator = new SignatureValidator
-        validator.verifyLicense(publicKeyFileName, inputFileName) match {
+        validator.verifyLicense(inputFileName, publicKeyFileName) match {
           case Success(SignatureMatch(_)) => println("License is valid."); System.exit(0)
           case Success(SignatureMismatch) => println("License is NOT valid."); System.exit(2)
           case Failure(e)                 => errorExit(e.getMessage)
