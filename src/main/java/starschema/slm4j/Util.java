@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 public class Util {
-    // The newline string.
+    /** The newline string. */
     static final String EOL = System.getProperty("line.separator");
 
     /** Returns the lines of a file. */
