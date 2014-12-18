@@ -113,7 +113,7 @@ object Slm4jTool {
         val inputFileName      = parameters(PARAM_INPUTFILE)
         val outputFileName     = parameters(PARAM_OUTPUTFILE)
 
-        val creator = new SignatureCreator2
+        val creator = new SignatureCreator
         creator.signLicense(inputFileName, privateKeyFileName, outputFileName) match {
           case Success(()) => ()
           case Failure(e)  => errorExit(e.getMessage)

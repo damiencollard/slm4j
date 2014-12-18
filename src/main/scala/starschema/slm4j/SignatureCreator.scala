@@ -7,7 +7,7 @@ import java.security.spec.PKCS8EncodedKeySpec
 import scala.util.{Failure, Try}
 import scala.util.control.NonFatal
 
-class SignatureCreator2 {
+class SignatureCreator {
   private def computeTextSignature(lines: Array[String], _privateKey: PrivateKey): Try[Signature] = Try {
     val _signature = Signature.getInstance("SHA1withDSA", "SUN")
     _signature.initSign(_privateKey)
