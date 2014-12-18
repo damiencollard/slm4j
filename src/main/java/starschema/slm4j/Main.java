@@ -71,6 +71,8 @@ public class Main {
             "",
             "        Exit codes: 0 if the file is successfully signed, 1 on error.",
             "",
+            "Verify a file using a public key:",
+            "",
             "    " + self + " verify --public-key <key-file> --input <in-file>",
             "",
             "        Verifies that file <in-file> is properly signed, using the public DSA key read from",
