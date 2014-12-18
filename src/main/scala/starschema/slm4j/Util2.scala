@@ -1,6 +1,8 @@
 package starschema.slm4j;
 
-import scala.util.{Failure, Try}
+import java.io.File
+
+import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
 
 object Util2 {
@@ -26,5 +28,11 @@ object Util2 {
   /** Returns the lines between the specified delimiters. */
   def extractLines(lines: Array[String], beginDelim: String, endDelim: String): Array[String] =
     lines.dropWhile(_ != beginDelim).drop(1).takeWhile(_ != endDelim)
+
+  def checkPresent(fileName: String): Try[Unit] =
+    if (new File(fileName).exists()) Success(()) else Failure(new SlmException(s"File '$fileName' not found"))
+
+  def checkAbsent(fileName: String): Try[Unit] =
+    if (new File(fileName).exists()) Failure(new SlmException(s"File '$fileName' already exists")) else Success(())
 }
 
