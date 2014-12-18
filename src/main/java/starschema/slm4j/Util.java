@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Util {
     // The newline string.
-    private static final String EOL = System.getProperty("line.separator");
+    static final String EOL = System.getProperty("line.separator");
 
     /** Returns the lines of a file. */
     public static String[] readLines(String fileName) throws SlmException {

@@ -30,9 +30,6 @@ import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 
 public class SignatureCreator {
-    private static final String EOL = System.getProperty("line.separator");
-    private static final int SIGNATURE_LINE_LENGTH = 20;
-
     private Signature computeTextSignature(String[] lines, PrivateKey _privateKey) throws SlmException {
         Signature _signature;
         try {
@@ -82,22 +79,22 @@ public class SignatureCreator {
             }
 
             w.write(Delim.LICENSE_BEGIN);
-            w.write(EOL);
+            w.write(Util.EOL);
             for (String line: lines) {
                 w.write(line);
-                w.write(EOL);
+                w.write(Util.EOL);
             }
             w.write(Delim.LICENSE_END);
-            w.write(EOL);
+            w.write(Util.EOL);
 
-            w.write(Delim.SIGNATURE_BEGIN); w.write(EOL);
-            for (int i = 0; i < base64Sig.length; i = i + SIGNATURE_LINE_LENGTH) {
-                w.write(base64Sig, i, Math.min(base64Sig.length - i, SIGNATURE_LINE_LENGTH));
-                if (base64Sig.length - i > SIGNATURE_LINE_LENGTH) {
-                    w.write(EOL);
+            w.write(Delim.SIGNATURE_BEGIN); w.write(Util.EOL);
+            for (int i = 0; i < base64Sig.length; i = i + KeyUtil.SIGNATURE_LINE_LENGTH) {
+                w.write(base64Sig, i, Math.min(base64Sig.length - i, KeyUtil.SIGNATURE_LINE_LENGTH));
+                if (base64Sig.length - i > KeyUtil.SIGNATURE_LINE_LENGTH) {
+                    w.write(Util.EOL);
                 }
             }
-            w.write(EOL);
+            w.write(Util.EOL);
             w.write(Delim.SIGNATURE_END);
         } catch (Exception ex) {
             throw new SlmException("Error signing file: " + ex.getMessage());
