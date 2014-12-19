@@ -22,7 +22,7 @@ class SignatureValidator {
   def verifyLicense(signedFileName: String, publicKeyFileName: String,
                     textMarker: String = defaultTextMarker): Try[SignatureVerification] =
     for (
-      publicKey    <- readPublicKey(publicKeyFileName);
+      publicKey    <- readKey[PublicKey](publicKeyFileName);
       signedText   <- readSignedText(signedFileName, publicKey, textMarker);
       ok           <- verifySignedText(signedText, publicKey)
     ) yield {

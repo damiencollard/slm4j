@@ -62,29 +62,35 @@ object KeyUtil {
         Failure(new StsException("Error writing key: " + e.getMessage))
     }
 
-  def readPrivateKey(fileName: String): Try[PrivateKey] =
+  abstract class KeyReader[K] {
+    def readKey(r: BufferedReader): Try[K]
+  }
+
+  implicit object PrivateKeyReader extends KeyReader[PrivateKey] {
+    def readKey(r: BufferedReader): Try[PrivateKey] =
+      readContents(r, keepLines = false) map { privateKeyString =>
+        KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
+      } recoverWith {
+        case NonFatal(e) =>
+          Failure(new StsException(s"Failed reading private key: ${e.getMessage}"))
+      }
+  }
+
+  implicit object PublicKeyReader extends KeyReader[PublicKey] {
+    def readKey(r: BufferedReader): Try[PublicKey] =
+      readContents(r, keepLines = false) map { publicKeyString =>
+        KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
+      } recoverWith {
+        case NonFatal(e) =>
+          Failure(new StsException(s"Failed reading public key: ${e.getMessage}"))
+      }
+  }
+
+  def readKey[K](fileName: String)(implicit kr: KeyReader[K]): Try[K] =
     Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
-      readPrivateKey(r) thenAlways { r.close() }
+      kr.readKey(r) thenAlways { r.close() }
     }
 
-  def readPrivateKey(r: BufferedReader): Try[PrivateKey] =
-    readContents(r, keepLines = false) map { privateKeyString =>
-      KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
-    } recoverWith {
-      case NonFatal(e) =>
-        Failure(new StsException(s"Failed reading private key: ${e.getMessage}"))
-    }
-
-  def readPublicKey(fileName: String): Try[PublicKey] =
-    Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
-        readPublicKey(r) thenAlways { r.close() }
-    }
-
-  def readPublicKey(r: BufferedReader): Try[PublicKey] =
-    readContents(r, keepLines = false) map { publicKeyString =>
-      KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
-    } recoverWith {
-      case NonFatal(e) =>
-        Failure(new StsException(s"Failed reading public key: ${e.getMessage}"))
-    }
+  def readKey[K](r: BufferedReader)(implicit kr: KeyReader[K]): Try[K] =
+    kr.readKey(r)
 }

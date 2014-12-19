@@ -28,7 +28,7 @@ class SignatureCreator {
   def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer,
                   textMarker: String): Try[Unit] = {
     for (
-      privateKey   <- readPrivateKey(privateKeyFileName);
+      privateKey   <- readKey[PrivateKey](privateKeyFileName);
       unsignedText <- readUnsignedText(licenseFileName);
       signedText   <- signText(unsignedText, privateKey);
       _            <- writeSignedText(signedText, w, textMarker)

@@ -29,7 +29,7 @@ class KeyUtilSpec extends Specification {
       val str = w.toString
 
       val r = new BufferedReader(new StringReader(str))
-      readPrivateKey(r) must beSuccessfulTry[PrivateKey].withValue(privKey)
+      readKey[PrivateKey](r) must beSuccessfulTry[PrivateKey].withValue(privKey)
     }
   }
 
@@ -43,7 +43,7 @@ class KeyUtilSpec extends Specification {
       val str = w.toString
 
       val r = new BufferedReader(new StringReader(str))
-      readPublicKey(r) must beSuccessfulTry[PublicKey].withValue(pubKey)
+      readKey[PublicKey](r) must beSuccessfulTry[PublicKey].withValue(pubKey)
     }
   }
 }
