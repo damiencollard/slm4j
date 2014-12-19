@@ -30,7 +30,14 @@ object Util {
     * Otherwise, they're not.
     */
   def readFileContents(fileName: String, keepLines: Boolean = true): Try[String] =
-    readLines(fileName) map (_.mkString(if (keepLines) "\n" else ""))
+    Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
+      readContents(r, keepLines) thenAlways { r.close() }
+    } recoverWith {
+      case NonFatal(e) => Failure(new StsException(s"Failed reading file '$fileName': ${e.getMessage}"))
+    }
+
+  def readContents(r: BufferedReader, keepLines: Boolean = true): Try[String] =
+    readLines(r) map (_.mkString(if (keepLines) "\n" else ""))
 
   /** Returns the lines between the specified delimiters. */
   def extractLines(lines: Seq[String], start: String, stop: String): Seq[String] =
