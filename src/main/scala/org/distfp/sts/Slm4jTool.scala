@@ -20,9 +20,8 @@ object Slm4jTool {
 
   def main(args: Array[String]): Unit = {
     try {
-      if (args.length == 0) {
-        errorExit("Error: invalid commandline")
-      }
+      if (args.length == 0)
+        exitInvalid()
       if (args.contains("-h") || args.contains("--help"))
         printUsage()
       else {
@@ -79,52 +78,27 @@ object Slm4jTool {
 
   private def executeApplication(arguments: Array[String]): Unit = {
     // XXX Simplify the handling of parameters!
-    val parameters = mutable.HashMap.empty[String, String]
-
-    val parameterSetSign    = mutable.HashSet.empty[String]
-    val parameterSetVerify  = mutable.HashSet.empty[String]
-    val parameterSetGenKeys = mutable.HashSet.empty[String]
-
-    var parameterSet: mutable.Set[String] = null
+    //val parameters = mutable.HashMap.empty[String, String]
 
     try {
-      parameterSetSign.add(PARAM_INPUTFILE)
-      parameterSetSign.add(PARAM_PRIVATEKEY)
-      parameterSetSign.add(PARAM_OUTPUTFILE)
-      parameterSetSign.add(PARAM_TEXTMARKER)
-
-      parameterSetVerify.add(PARAM_PUBLICKEY)
-      parameterSetVerify.add(PARAM_INPUTFILE)
-      parameterSetVerify.add(PARAM_TEXTMARKER)
-
-      parameterSetGenKeys.add(PARAM_BASENAME)
-
-      arguments(0) match {
-        case ACTION_SIGN    => parameterSet = parameterSetSign
-        case ACTION_VERIFY  => parameterSet = parameterSetVerify
-        case ACTION_GENKEYS => parameterSet = parameterSetGenKeys
-        case _              => errorExit("Invalid action")
+      if (arguments.drop(1).length % 2 != 0)
+        exitInvalid()
+      val parameters = {
+        val options = arguments.drop(1).grouped(2).toList.map(o => o(0) -> o(1))
+        Map(options: _*)
       }
 
-      for (i <- 1 until arguments.length) {
-        // XXX Simplify this!
-        if (i % 2 == 1 && (!parameterSet.contains(arguments(i)) || parameters.contains(arguments(i)))) {
-          errorExit(s"Invalid or duplicated parameter '${arguments(i)}'")
-        }
-        if (i % 2 == 0) {
-          parameters += (arguments(i - 1) -> arguments(i))
-        }
-      }
+      def getParam(name: String): String =
+        parameters.get(name) getOrElse { exitInvalid(); "" }
 
-      if (parameterSet.size != parameters.size) {
-        errorExit("Invalid commandline")
-      }
+      def getOptParam(param: String, default: String): String =
+        parameters.getOrElse(param, default)
 
       if (arguments(0) == ACTION_SIGN) {
-        val privateKeyFileName = parameters(PARAM_PRIVATEKEY)
-        val inputFileName      = parameters(PARAM_INPUTFILE)
-        val outputFileName     = parameters(PARAM_OUTPUTFILE)
-        val textMarker         = parameters.get(PARAM_TEXTMARKER) getOrElse Delim.defaultTextMarker
+        val privateKeyFileName = getParam(PARAM_PRIVATEKEY)
+        val inputFileName      = getParam(PARAM_INPUTFILE)
+        val outputFileName     = getParam(PARAM_OUTPUTFILE)
+        val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
         val creator = new SignatureCreator
         creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
@@ -132,9 +106,9 @@ object Slm4jTool {
           case Failure(e)  => errorExit(e.getMessage)
         }
       } else if (arguments(0) == ACTION_VERIFY) {
-        val publicKeyFileName = parameters(PARAM_PUBLICKEY)
-        val inputFileName     = parameters(PARAM_INPUTFILE)
-        val textMarker        = parameters.get(PARAM_TEXTMARKER) getOrElse Delim.defaultTextMarker
+        val publicKeyFileName = getParam(PARAM_PUBLICKEY)
+        val inputFileName     = getParam(PARAM_INPUTFILE)
+        val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
         val validator = new SignatureValidator
         validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
@@ -157,11 +131,14 @@ object Slm4jTool {
     }
   }
 
-  private def printError(msg: => String): Unit =
-    System.err.println("Error: " + msg)
+  def exitInvalid(): Unit =
+    errorExit("Invalid commandline")
 
   private def errorExit(msg: => String, exitCode: Int = 1): Unit = {
     printError(msg)
     System.exit(exitCode)
   }
+
+  private def printError(msg: => String): Unit =
+    System.err.println("Error: " + msg)
 }
