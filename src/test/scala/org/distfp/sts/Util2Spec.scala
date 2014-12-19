@@ -31,7 +31,7 @@ class Util2Spec extends Specification {
   "readlines" should {
     "fail if the file does not exist" in {
       val fName = nonExistentFileName()
-      readLines(fName) must beFailedTry[Array[String]].withThrowable[SlmException]
+      readLines(fName) must beFailedTry[Array[String]].withThrowable[StsException]
     }
 
     "return all the lines, unchanged, if the file exists" in {
@@ -45,7 +45,7 @@ class Util2Spec extends Specification {
     "fail if the file does not exist" in {
       val fName = nonExistentFileName()
       Seq(false, true) forall { b =>
-        readFileContents(fName, keepLines = b) must beFailedTry[String].withThrowable[SlmException]
+        readFileContents(fName, keepLines = b) must beFailedTry[String].withThrowable[StsException]
       }
     }
     
@@ -76,14 +76,14 @@ class Util2Spec extends Specification {
   "checkPresent/checkAbsent" should {
     "raise an exception/succeed if the file does not exist" in {
       val fName = nonExistentFileName()
-      checkPresent(fName) must beFailedTry[Unit].withThrowable[SlmException]
+      checkPresent(fName) must beFailedTry[Unit].withThrowable[StsException]
       checkAbsent(fName) must beSuccessfulTry[Unit]
     }
 
     "succeed/raise an exception if the file exists" in {
       val f = createTestFile(Jabberwocky.all)
       checkPresent(f.getName) must beSuccessfulTry[Unit]
-      checkAbsent(f.getName) must beFailedTry[Unit].withThrowable[SlmException]
+      checkAbsent(f.getName) must beFailedTry[Unit].withThrowable[StsException]
       f.delete()
     }
   }

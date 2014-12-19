@@ -26,4 +26,4 @@
 package org.distfp.sts
 
 /** Exception raised by the slm4j library. */
-class SlmException(msg: String) extends Exception(msg)
+class StsException(msg: String) extends Exception(msg)

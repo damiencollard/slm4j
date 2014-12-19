@@ -8,7 +8,7 @@ class TextSpec extends Specification {
   "UnsignedText" should {
     "raise SlmException if the text contains the separator" in {
       val lines = Array("one", "two", delimSeparator + "three", "four")
-      UnsignedText(lines) must throwA[SlmException]
+      UnsignedText(lines) must throwA[StsException]
     }
 
     "succeed if the text does not contain any separator" in {

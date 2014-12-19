@@ -46,7 +46,7 @@ class SignatureCreator {
     SignedText(unsignedText.lines, signature.sign())
   } recoverWith {
     case NonFatal(e) =>
-      Failure(new SlmException("Failed signing text: " + e.getMessage))
+      Failure(new StsException("Failed signing text: " + e.getMessage))
   }
 
   private def readPrivateKey(fileName: String): Try[PrivateKey] =
@@ -54,7 +54,7 @@ class SignatureCreator {
       KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException(s"Failed reading private key file '$fileName': " + e.getMessage))
+        Failure(new StsException(s"Failed reading private key file '$fileName': " + e.getMessage))
     }
 
   private def readUnsignedText(fileName: String): Try[UnsignedText] =
@@ -62,7 +62,7 @@ class SignatureCreator {
 
   private def writeSignedText(signedText: SignedText, w: Writer, textMarker: String): Try[Unit] =
     if (textMarker == signatureMarker)
-      Failure(new SlmException("Text marker cannot be identical to signature marker"))
+      Failure(new StsException("Text marker cannot be identical to signature marker"))
     else Try {
       val base64Sig = Base64Coder.encode(signedText.signature)
 

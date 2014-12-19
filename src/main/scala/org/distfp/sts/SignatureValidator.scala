@@ -34,7 +34,7 @@ class SignatureValidator {
       KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException(s"Failed reading public key file '$fileName': " + e.getMessage))
+        Failure(new StsException(s"Failed reading public key file '$fileName': " + e.getMessage))
     }
 
   private def readSignedText(fileName: String, publicKey: PublicKey, textMarker: String): Try[SignedText] =
@@ -45,7 +45,7 @@ class SignatureValidator {
 
   private def extractText(lines: Array[String], textMarker: String): Try[Array[String]] =
     if (textMarker == signatureMarker)
-      Failure(new SlmException("Text marker cannot be identical to signature marker"))
+      Failure(new StsException("Text marker cannot be identical to signature marker"))
     else
       Success(extractLines(lines, beginDelim(textMarker), endDelim(textMarker)))
 
@@ -60,7 +60,7 @@ class SignatureValidator {
     Base64Coder.decode(sb.toString())
   } recoverWith {
     case NonFatal(e) =>
-      Failure(new SlmException("Failed extracting signature: " + e.getMessage))
+      Failure(new StsException("Failed extracting signature: " + e.getMessage))
   }
 
   private def verifySignedText(signedText: SignedText, publicKey: PublicKey): Try[Boolean] =
@@ -71,6 +71,6 @@ class SignatureValidator {
       computedSig.verify(signedText.signature)
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException("Failed verifying signed text: " + e.getMessage))
+        Failure(new StsException("Failed verifying signed text: " + e.getMessage))
     }
 }

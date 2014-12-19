@@ -19,7 +19,7 @@ object KeyUtil {
       (kp.getPrivate, kp.getPublic)
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException("Error generating keys: " + e.getMessage))
+        Failure(new StsException("Error generating keys: " + e.getMessage))
     }
     for (
       (privateKey, publicKey) <- genKeyPair();
@@ -36,9 +36,9 @@ object KeyUtil {
           Failure(e)
       }
     } recoverWith {
-      case e: SlmException => Failure(e)
+      case e: StsException => Failure(e)
       case NonFatal(e) =>
-        Failure(new SlmException(s"Error writing key to '$fileName': ${e.getMessage}"))
+        Failure(new StsException(s"Error writing key to '$fileName': ${e.getMessage}"))
     }
 
   def writeKey(key: Key, w: Writer): Try[Unit] = {
@@ -56,6 +56,6 @@ object KeyUtil {
       }
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException("Error writing key: " + e.getMessage))
+        Failure(new StsException("Error writing key: " + e.getMessage))
     }
 }
