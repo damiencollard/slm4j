@@ -94,36 +94,42 @@ object Slm4jTool {
       def getOptParam(param: String, default: String): String =
         parameters.getOrElse(param, default)
 
-      if (arguments(0) == ACTION_SIGN) {
-        val privateKeyFileName = getParam(PARAM_PRIVATEKEY)
-        val inputFileName      = getParam(PARAM_INPUTFILE)
-        val outputFileName     = getParam(PARAM_OUTPUTFILE)
-        val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
+      arguments(0) match {
+        case ACTION_SIGN =>
+          val privateKeyFileName = getParam(PARAM_PRIVATEKEY)
+          val inputFileName      = getParam(PARAM_INPUTFILE)
+          val outputFileName     = getParam(PARAM_OUTPUTFILE)
+          val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-        val creator = new SignatureCreator
-        creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
-          case Success(()) => ()
-          case Failure(e)  => errorExit(e.getMessage)
-        }
-      } else if (arguments(0) == ACTION_VERIFY) {
-        val publicKeyFileName = getParam(PARAM_PUBLICKEY)
-        val inputFileName     = getParam(PARAM_INPUTFILE)
-        val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
+          val creator = new SignatureCreator
+          creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
+            case Success(()) => ()
+            case Failure(e)  => errorExit(e.getMessage)
+          }
 
-        val validator = new SignatureValidator
-        validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
-          case Success(SignatureMatch(_)) => println("License is valid."); System.exit(0)
-          case Success(SignatureMismatch) => println("License is NOT valid."); System.exit(2)
-          case Failure(e)                 => errorExit(e.getMessage)
-        }
-      } else /* ACTION_GENKEYS */ {
-        val baseName = parameters(PARAM_BASENAME);
-        val privateKeyFileName = baseName
-        val publicKeyFileName  = baseName + ".pub"
-        KeyUtil.generateKeys(privateKeyFileName, publicKeyFileName) match {
-          case Success(()) => ()
-          case Failure(e)  => errorExit(e.getMessage)
-        }
+        case ACTION_VERIFY =>
+          val publicKeyFileName = getParam(PARAM_PUBLICKEY)
+          val inputFileName     = getParam(PARAM_INPUTFILE)
+          val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
+
+          val validator = new SignatureValidator
+          validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
+            case Success(SignatureMatch(_)) => println("License is valid."); System.exit(0)
+            case Success(SignatureMismatch) => println("License is NOT valid."); System.exit(2)
+            case Failure(e)                 => errorExit(e.getMessage)
+          }
+
+        case ACTION_GENKEYS =>
+          val baseName = parameters(PARAM_BASENAME);
+          val privateKeyFileName = baseName
+          val publicKeyFileName  = baseName + ".pub"
+          KeyUtil.generateKeys(privateKeyFileName, publicKeyFileName) match {
+            case Success(()) => ()
+            case Failure(e)  => errorExit(e.getMessage)
+          }
+
+        case _ =>
+          exitInvalid()
       }
     } catch {
       case NonFatal(e) =>
