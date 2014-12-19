@@ -35,7 +35,7 @@ object KeyUtil {
 
   def writeKey(key: Key, fileName: String): Try[Unit] =
     Try { new FileWriter(fileName) } flatMap { w =>
-      writeKey(key, w) map { _ => w.close() }recoverWith {
+      writeKey(key, w) map { _ => w.close() } recoverWith {
         case NonFatal(e) =>
           w.close()
           Failure(e)
