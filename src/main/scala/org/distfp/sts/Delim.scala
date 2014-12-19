@@ -1,13 +1,13 @@
 package org.distfp.sts
 
 object Delim {
-    val defaultTextMarker = "LICENSE"
+    val defaultTextMarker = "TEXT"
     val signatureMarker   = "SIGNATURE"
 
     val delimSeparator = "-----"
 
     def beginDelim(marker: String) = delim("BEGIN " + marker)
-    def endDelim(marker: String) = delim("END" + marker)
+    def endDelim(marker: String) = delim("END " + marker)
 
     private def delim(s: String) = s"$delimSeparator $s $delimSeparator"
 
