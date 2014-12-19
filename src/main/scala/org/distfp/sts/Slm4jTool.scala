@@ -34,7 +34,7 @@ object Slm4jTool {
   }
 
   private def printUsage(): Unit = {
-    val self = "slm4j.sh"
+    val self = "sts.sh"
     println(s"""
       |Usage: $self <action> [parameters]
       |
@@ -42,11 +42,11 @@ object Slm4jTool {
       |
       |    $self sign --private-key <key-file> --input <in-file> --output <out-file>
       |
-      |        Signs file <in-file> using the private DSA key read from <key-file> and write the
-      |        result in <out-file>.
+      |        Signs file <in-file> using the private DSA key read from <key-file>
+      |        and write the result in <out-file>.
       |
-      |        Lines in the input file *cannot* start with '${Delim.delimMarker}', the marker
-      |        used in signed files.
+      |        Lines in the input file *cannot* start with '${Delim.delimSeparator}' as it's
+      |        the delimiter used to separate text from signature in signed files.
       |
       |        Exit codes: 0 if the file is successfully signed, 1 on error.
       |
@@ -54,8 +54,8 @@ object Slm4jTool {
       |
       |    $self verify --public-key <key-file> --input <in-file>
       |
-      |        Verifies that file <in-file> is properly signed, using the public DSA key read from
-      |        <key-file>.
+      |        Verifies that file <in-file> is properly signed, using the public
+      |        DSA key read from <key-file>.
       |
       |        Exit codes: 0 if the license is valid, 2 if not, and 1 on error.
       |
@@ -65,7 +65,7 @@ object Slm4jTool {
       |
       |        Generates private key <base-name> and public key <base-name>.pub.
       |        DO NOT SHARE THE PRIVATE KEY.
-            """.stripMargin)
+      |""".stripMargin)
   }
 
   private def executeApplication(arguments: Array[String]): Unit = {
