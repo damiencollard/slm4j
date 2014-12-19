@@ -1,6 +1,7 @@
 package org.distfp.sts
 
-import java.io.StringWriter
+import java.io.{BufferedReader, StringReader, StringWriter}
+import java.security.{PrivateKey, PublicKey}
 
 import org.specs2.mutable.Specification
 
@@ -16,14 +17,33 @@ class KeyUtilSpec extends Specification {
       w.close()
       w.toString must_== testString
     }
+  }
 
-//    "write a PublicKey to the writer" in {
-//      genKeyPair() map { case (privKey, pubKey) =>
-//        val w = new StringWriter
-//        writeKey(pubKey, w)
-//        w.close()
-//        w.toString == pubKey
-//      } must beSuccessfulTry[Boolean].withValue(true)
-//    }
+  "writeKey(<private-key>) . readPrivateKey" should {
+    "be identity" in {
+      val (privKey, pubKey) = genKeyPair().get
+
+      val w = new StringWriter
+      writeKey(privKey, w)
+      w.close()
+      val str = w.toString
+
+      val r = new BufferedReader(new StringReader(str))
+      readPrivateKey(r) must beSuccessfulTry[PrivateKey].withValue(privKey)
+    }
+  }
+
+  "writeKey(<public-key>) . readPublicKey" should {
+    "be identity" in {
+      val (privKey, pubKey) = genKeyPair().get
+
+      val w = new StringWriter
+      writeKey(pubKey, w)
+      w.close()
+      val str = w.toString
+
+      val r = new BufferedReader(new StringReader(str))
+      readPublicKey(r) must beSuccessfulTry[PublicKey].withValue(pubKey)
+    }
   }
 }
