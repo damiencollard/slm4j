@@ -20,7 +20,7 @@ class Util2Spec extends Specification {
     new File(fileName)
   }
 
-  private def nonExistentFile(): String = {
+  private def nonExistentFileName(): String = {
     val fileName = randomFileName
     new File(fileName).delete()
     fileName
@@ -30,7 +30,7 @@ class Util2Spec extends Specification {
 
   "readlines" should {
     "fail if the file does not exist" in {
-      val fName = nonExistentFile()
+      val fName = nonExistentFileName()
       readLines(fName) must beFailedTry[Array[String]].withThrowable[SlmException]
     }
 
@@ -43,7 +43,7 @@ class Util2Spec extends Specification {
 
   "readFileContents" should {
     "fail if the file does not exist" in {
-      val fName = nonExistentFile()
+      val fName = nonExistentFileName()
       Seq(false, true) forall { b =>
         readFileContents(fName, keepLines = b) must beFailedTry[String].withThrowable[SlmException]
       }
@@ -72,4 +72,20 @@ class Util2Spec extends Specification {
       extractLines(firstThree, B, E).deep must_== Jabberwocky(1)
     }
   }
+
+  "checkPresent/checkAbsent" should {
+    "raise an exception/succeed if the file does not exist" in {
+      val fName = nonExistentFileName()
+      checkPresent(fName) must beFailedTry[Unit].withThrowable[SlmException]
+      checkAbsent(fName) must beSuccessfulTry[Unit]
+    }
+
+    "succeed/raise an exception if the file exists" in {
+      val f = createTestFile(Jabberwocky.all)
+      checkPresent(f.getName) must beSuccessfulTry[Unit]
+      checkAbsent(f.getName) must beFailedTry[Unit].withThrowable[SlmException]
+      f.delete()
+    }
+  }
+
 }
