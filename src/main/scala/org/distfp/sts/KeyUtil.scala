@@ -11,13 +11,7 @@ object KeyUtil {
   val SIGNATURE_LINE_LENGTH = 20
 
   def generateKeys(privateKeyFileName: String, publicKeyFileName: String): Try[Unit] = {
-    def genKeyPair(): Try[(PrivateKey, PublicKey)] = Try {
-      val gen = KeyPairGenerator.getInstance("DSA", "SUN")
-      val random = SecureRandom.getInstance("SHA1PRNG", "SUN")
-      gen.initialize(1024, random)
-      val kp = gen.generateKeyPair()
-      (kp.getPrivate, kp.getPublic)
-    } recoverWith {
+    genKeyPair() recoverWith {
       case NonFatal(e) =>
         Failure(new StsException("Error generating keys: " + e.getMessage))
     }
@@ -26,6 +20,14 @@ object KeyUtil {
       _ <- writeKey(privateKey, privateKeyFileName);
       _ <- writeKey(publicKey, publicKeyFileName)
     ) yield ()
+  }
+
+  private[sts] def genKeyPair(): Try[(PrivateKey, PublicKey)] = Try {
+    val gen = KeyPairGenerator.getInstance("DSA", "SUN")
+    val random = SecureRandom.getInstance("SHA1PRNG", "SUN")
+    gen.initialize(1024, random)
+    val kp = gen.generateKeyPair()
+    (kp.getPrivate, kp.getPublic)
   }
 
   def writeKey(key: Key, fileName: String): Try[Unit] =
