@@ -69,5 +69,5 @@ contain any line starting with the delimiter marker `-----`.
 Any changes to the text (or the signature) and the validator will consider
 the file invalid.
 
-[STS on GitHub](https://github.com/damiencollard/slm4j).
+[STS on GitHub](https://github.com/damiencollard/sts).
 
