@@ -1,4 +1,4 @@
-package starschema.slm4j;
+package org.distfp.sts;
 
 /**
 * A Base64 Encoder/Decoder.

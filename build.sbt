@@ -6,7 +6,7 @@ organization := "damiencollard"
 
 TaskKey[Seq[File]]("mksh") <<= (baseDirectory, fullClasspath in Runtime) map { (base, cp) =>
   val tools = Map(
-    "slm4j.sh" -> "starschema.slm4j.Slm4jTool"
+    "sts.sh" -> "org.distfp.sts.Slm4jTool"
   )
   tools.keys.toList map { scriptName =>
     makeShellScript(base, cp, tools(scriptName), scriptName)

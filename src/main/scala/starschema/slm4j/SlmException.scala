@@ -23,7 +23,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package starschema.slm4j
+package org.distfp.sts
 
 /** Exception raised by the slm4j library. */
 class SlmException(msg: String) extends Exception(msg)
