@@ -5,7 +5,7 @@ trait Text {
 }
 
 case class UnsignedText(lines: Array[String]) extends Text {
-  if (lines exists (_.startsWith(Delim.delimMarker)))
+  if (lines exists (_.startsWith(Delim.delimSeparator)))
     throw new SlmException("Unsigned text contains a line with a license marker")
 }
 

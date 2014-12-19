@@ -38,18 +38,21 @@ class SignatureValidator {
 
   private def readSignedText(fileName: String, publicKey: PublicKey): Try[SignedText] =
     for (lines     <- readLines(fileName);
-         textLines <- extractLicense(lines);
+         textLines <- extractText(lines);
          sig       <- extractSignature(lines, publicKey))
       yield SignedText(textLines, sig)
 
-  private def extractLicense(lines: Array[String]): Try[Array[String]] =
-    Success(extractLines(lines, LICENSE_BEGIN, LICENSE_END))
+  private def extractText(lines: Array[String], textMarker: String = defaultTextMarker): Try[Array[String]] =
+    if (textMarker == signatureMarker)
+      Failure(new SlmException("Text marker cannot be identical to signature marker"))
+    else
+      Success(extractLines(lines, beginDelim(textMarker), endDelim(textMarker)))
 
   private def extractSignature(lines: Array[String], publicKey: PublicKey): Try[Array[Byte]] = Try {
     val sig = Signature.getInstance("SHA1withDSA")
     sig.initVerify(publicKey)
 
-    val sigLines = extractLines(lines, SIGNATURE_BEGIN, SIGNATURE_END)
+    val sigLines = extractLines(lines, signatureBegin, signatureEnd)
     val sb = new StringBuilder
     sigLines foreach sb.append
 

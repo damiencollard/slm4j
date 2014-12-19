@@ -58,24 +58,27 @@ class SignatureCreator {
   private def readUnsignedText(fileName: String): Try[UnsignedText] =
     readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }
 
-  private def writeSignedText(signedText: SignedText, w: Writer): Try[Unit] = Try {
-    val base64Sig = Base64Coder.encode(signedText.signature)
+  private def writeSignedText(signedText: SignedText, w: Writer, textMarker: String = defaultTextMarker): Try[Unit] =
+    if (textMarker == signatureMarker)
+      Failure(new SlmException("Text marker cannot be identical to signature marker"))
+    else Try {
+      val base64Sig = Base64Coder.encode(signedText.signature)
 
-    w.write(LICENSE_BEGIN)
-    w.write(EOL)
-    signedText.lines foreach { line =>
-      w.write(line)
+      w.write(beginDelim(textMarker))
       w.write(EOL)
+      signedText.lines foreach { line =>
+        w.write(line)
+        w.write(EOL)
+      }
+      w.write(endDelim(textMarker))
+      w.write(EOL)
+
+      w.write(signatureBegin)
+      w.write(EOL)
+
+      // Write using same formatting as for keys.
+      KeyUtil.writeKey(base64Sig, w)
+      w.write(EOL)
+      w.write(signatureEnd)
     }
-    w.write(LICENSE_END)
-    w.write(EOL)
-
-    w.write(SIGNATURE_BEGIN)
-    w.write(EOL)
-
-    // Write using same formatting as for keys.
-    KeyUtil.writeKey(base64Sig, w)
-    w.write(EOL)
-    w.write(SIGNATURE_END)
-  }
 }
