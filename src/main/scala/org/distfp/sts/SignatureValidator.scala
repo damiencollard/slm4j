@@ -19,10 +19,11 @@ class SignatureValidator {
   import org.distfp.sts.SignatureValidator._
 
   /** Verifies a signed license file against a public key. */
-  def verifyLicense(signedFileName: String, publicKeyFileName: String): Try[SignatureVerification] =
+  def verifyLicense(signedFileName: String, publicKeyFileName: String,
+                    textMarker: String = defaultTextMarker): Try[SignatureVerification] =
     for (
       publicKey    <- readPublicKey(publicKeyFileName);
-      signedText   <- readSignedText(signedFileName, publicKey);
+      signedText   <- readSignedText(signedFileName, publicKey, textMarker);
       ok           <- verifySignedText(signedText, publicKey)
     ) yield {
       if (ok) SignatureMatch(signedText) else SignatureMismatch
@@ -36,13 +37,13 @@ class SignatureValidator {
         Failure(new SlmException(s"Failed reading public key file '$fileName': " + e.getMessage))
     }
 
-  private def readSignedText(fileName: String, publicKey: PublicKey): Try[SignedText] =
+  private def readSignedText(fileName: String, publicKey: PublicKey, textMarker: String): Try[SignedText] =
     for (lines     <- readLines(fileName);
-         textLines <- extractText(lines);
+         textLines <- extractText(lines, textMarker);
          sig       <- extractSignature(lines, publicKey))
       yield SignedText(textLines, sig)
 
-  private def extractText(lines: Array[String], textMarker: String = defaultTextMarker): Try[Array[String]] =
+  private def extractText(lines: Array[String], textMarker: String): Try[Array[String]] =
     if (textMarker == signatureMarker)
       Failure(new SlmException("Text marker cannot be identical to signature marker"))
     else

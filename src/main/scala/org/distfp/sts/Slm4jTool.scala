@@ -16,6 +16,7 @@ object Slm4jTool {
   private val PARAM_PUBLICKEY  = "--public-key"
   private val PARAM_PRIVATEKEY = "--private-key"
   private val PARAM_BASENAME   = "--base-name"
+  private val PARAM_TEXTMARKER = "--text-marker"
 
   def main(args: Array[String]): Unit = {
     try {
@@ -41,6 +42,7 @@ object Slm4jTool {
       |* Sign a file using a private key:
       |
       |    $self sign --private-key <key-file> --input <in-file> --output <out-file>
+      |               [--text-marker <marker>]
       |
       |        Signs file <in-file> using the private DSA key read from <key-file>
       |        and write the result in <out-file>.
@@ -48,14 +50,21 @@ object Slm4jTool {
       |        Lines in the input file *cannot* start with '${Delim.delimSeparator}' as it's
       |        the delimiter used to separate text from signature in signed files.
       |
+      |        You can optionally specify the marker to use in the text delimiters.
+      |        The default is "${Delim.defaultTextMarker}". It can't be identical to the signature
+      |        marker, "${Delim.signatureMarker}".
+      |
       |        Exit codes: 0 if the file is successfully signed, 1 on error.
       |
       |* Verify a file using a public key:
       |
-      |    $self verify --public-key <key-file> --input <in-file>
+      |    $self verify --public-key <key-file> --input <in-file> [--text-marker <marker>]
       |
       |        Verifies that file <in-file> is properly signed, using the public
       |        DSA key read from <key-file>.
+      |
+      |        You should specify the marker used in the text delimiters unless it's the
+      |        default "${Delim.defaultTextMarker}".
       |
       |        Exit codes: 0 if the license is valid, 2 if not, and 1 on error.
       |
@@ -82,9 +91,11 @@ object Slm4jTool {
       parameterSetSign.add(PARAM_INPUTFILE)
       parameterSetSign.add(PARAM_PRIVATEKEY)
       parameterSetSign.add(PARAM_OUTPUTFILE)
+      parameterSetSign.add(PARAM_TEXTMARKER)
 
       parameterSetVerify.add(PARAM_PUBLICKEY)
       parameterSetVerify.add(PARAM_INPUTFILE)
+      parameterSetVerify.add(PARAM_TEXTMARKER)
 
       parameterSetGenKeys.add(PARAM_BASENAME)
 
@@ -113,18 +124,20 @@ object Slm4jTool {
         val privateKeyFileName = parameters(PARAM_PRIVATEKEY)
         val inputFileName      = parameters(PARAM_INPUTFILE)
         val outputFileName     = parameters(PARAM_OUTPUTFILE)
+        val textMarker         = parameters.get(PARAM_TEXTMARKER) getOrElse Delim.defaultTextMarker
 
         val creator = new SignatureCreator
-        creator.signLicense(inputFileName, privateKeyFileName, outputFileName) match {
+        creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
           case Success(()) => ()
           case Failure(e)  => errorExit(e.getMessage)
         }
       } else if (arguments(0) == ACTION_VERIFY) {
         val publicKeyFileName = parameters(PARAM_PUBLICKEY)
         val inputFileName     = parameters(PARAM_INPUTFILE)
+        val textMarker        = parameters.get(PARAM_TEXTMARKER) getOrElse Delim.defaultTextMarker
 
         val validator = new SignatureValidator
-        validator.verifyLicense(inputFileName, publicKeyFileName) match {
+        validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
           case Success(SignatureMatch(_)) => println("License is valid."); System.exit(0)
           case Success(SignatureMismatch) => println("License is NOT valid."); System.exit(2)
           case Failure(e)                 => errorExit(e.getMessage)

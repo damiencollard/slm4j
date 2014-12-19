@@ -11,9 +11,10 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
 class SignatureCreator {
-  def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String): Try[Unit] = {
+  def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String,
+                  textMarker: String = defaultTextMarker): Try[Unit] = {
     def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>
-      signLicense(licenseFileName, privateKeyFileName, writer) map { _ => writer.close() } recoverWith {
+      signLicense(licenseFileName, privateKeyFileName, writer, textMarker) map { _ => writer.close() } recoverWith {
         case NonFatal(e) =>
           writer.close()
           Failure(e)
@@ -26,12 +27,13 @@ class SignatureCreator {
     yield ()
   }
 
-  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer): Try[Unit] = {
+  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer,
+                  textMarker: String): Try[Unit] = {
     for (
       privateKey   <- readPrivateKey(privateKeyFileName);
       unsignedText <- readUnsignedText(licenseFileName);
       signedText   <- signText(unsignedText, privateKey);
-      _            <- writeSignedText(signedText, w)
+      _            <- writeSignedText(signedText, w, textMarker)
     ) yield ()
   }
 
@@ -58,7 +60,7 @@ class SignatureCreator {
   private def readUnsignedText(fileName: String): Try[UnsignedText] =
     readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }
 
-  private def writeSignedText(signedText: SignedText, w: Writer, textMarker: String = defaultTextMarker): Try[Unit] =
+  private def writeSignedText(signedText: SignedText, w: Writer, textMarker: String): Try[Unit] =
     if (textMarker == signatureMarker)
       Failure(new SlmException("Text marker cannot be identical to signature marker"))
     else Try {
