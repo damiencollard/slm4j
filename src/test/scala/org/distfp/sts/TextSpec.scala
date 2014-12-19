@@ -12,12 +12,7 @@ class TextSpec extends Specification {
     }
 
     "succeed if the text does not contain any separator" in {
-      val lines = Array(
-        "Beware the Jabberwock, my son!",
-        "The jaws that bite, the claws that catch!",
-        "Beware the Jubjub bird, and shun",
-        "The frumious Bandersnatch!"
-      )
+      val lines = Jabberwocky(0)
       UnsignedText(lines)
       true
     }
