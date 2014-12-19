@@ -6,9 +6,9 @@ import java.util.UUID
 import org.specs2.mutable.Specification
 
 import Delim._
-import Util2._
+import Util._
 
-class Util2Spec extends Specification {
+class UtilSpec extends Specification {
 
   private def randomFileName: String = UUID.randomUUID.toString
 
@@ -64,12 +64,12 @@ class Util2Spec extends Specification {
 
   "extractLines" should {
     "return no lines if the begin delimiter is not found" in {
-      extractLines(Jabberwocky.all, B, E).deep must_== Jabberwocky.all
+      extractLines(Jabberwocky.all, B, E).deep must_== Array.empty.deep
     }
 
     "return only the lines between the delimiters if both begin and end are found" in {
       val firstThree = Jabberwocky(0) ++ Array(B) ++ Jabberwocky(1) ++ Array(E) ++ Jabberwocky(2)
-      extractLines(firstThree, B, E).deep must_== Jabberwocky(1)
+      extractLines(firstThree, B, E).deep must_== Jabberwocky(1).deep
     }
   }
 

@@ -5,7 +5,7 @@ import java.io.File
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-object Util2 {
+object Util {
   val EOL = "\n"
 
   /** Returns the lines of a file. */

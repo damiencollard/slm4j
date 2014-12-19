@@ -5,7 +5,7 @@ import java.security._
 
 import org.distfp.sts.Delim._
 import org.distfp.sts.KeyUtil._
-import org.distfp.sts.Util2._
+import org.distfp.sts.Util._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}

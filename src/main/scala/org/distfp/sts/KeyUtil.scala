@@ -4,7 +4,7 @@ import java.io.{FileWriter, Writer}
 import java.security._
 import java.security.spec.{X509EncodedKeySpec, PKCS8EncodedKeySpec}
 
-import org.distfp.sts.Util2._
+import org.distfp.sts.Util._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
@@ -57,7 +57,7 @@ object KeyUtil {
       for (i <- 0 until key.length by SIGNATURE_LINE_LENGTH) {
         w.write(key, i, Math.min(key.length - i, SIGNATURE_LINE_LENGTH))
         if (key.length - i > SIGNATURE_LINE_LENGTH)
-          w.write(Util2.EOL)
+          w.write(Util.EOL)
       }
     } recoverWith {
       case NonFatal(e) =>
