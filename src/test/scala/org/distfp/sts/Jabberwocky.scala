@@ -22,6 +22,24 @@ object Jabberwocky {
         "He took his vorpal sword in hand:",
         "Long time the manxome foe he sought—",
         "So rested he by the Tumtum tree,",
-        "And stood awhile in thought")
+        "And stood awhile in thought"),
+
+      Array(
+        "And as in uffish thought he stood,",
+        "The Jabberwock, with eyes of flame,",
+        "Came whiffling through the tulgey wood,",
+        "And burbled as it came!"),
+
+      Array(
+        "One, two! One, two! and through and through",
+        "The vorpal blade went snicker-snack!",
+        "He left it dead, and with its head",
+        "He went galumphing back."),
+
+      Array(
+        "And hast thou slain the Jabberwock?",
+        "Come to my arms, my beamish boy!",
+        "O frabjous day! Callooh! Callay!",
+        "He chortled in his joy.")
   )
 }
