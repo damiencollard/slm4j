@@ -10,15 +10,13 @@ import org.distfp.sts.Util._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
+import Control._
+
 class SignatureCreator {
   def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String,
                   textMarker: String = defaultTextMarker): Try[Unit] = {
     def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>
-      signLicense(licenseFileName, privateKeyFileName, writer, textMarker) map { _ => writer.close() } recoverWith {
-        case NonFatal(e) =>
-          writer.close()
-          Failure(e)
-      }
+      signLicense(licenseFileName, privateKeyFileName, writer, textMarker) thenAlways { writer.close() }
     }
     for (_ <- checkPresent(licenseFileName);
          _ <- checkPresent(privateKeyFileName);

@@ -9,6 +9,8 @@ import org.distfp.sts.Util._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
+import Control._
+
 object KeyUtil {
   /** Length of a key line. */
   val SIGNATURE_LINE_LENGTH = 20
@@ -35,11 +37,7 @@ object KeyUtil {
 
   def writeKey(key: Key, fileName: String): Try[Unit] =
     Try { new FileWriter(fileName) } flatMap { w =>
-      writeKey(key, w) map { _ => w.close() } recoverWith {
-        case NonFatal(e) =>
-          w.close()
-          Failure(e)
-      }
+      writeKey(key, w) thenAlways { w.close() }
     } recoverWith {
       case e: StsException => Failure(e)
       case NonFatal(e) =>
