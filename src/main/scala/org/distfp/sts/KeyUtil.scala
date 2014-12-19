@@ -1,11 +1,10 @@
 package org.distfp.sts
 
-import java.io.FileWriter
-import java.io.Writer
+import java.io.{FileWriter, Writer}
 import java.security._
 
-import scala.util.{Failure, Try}
 import scala.util.control.NonFatal
+import scala.util.{Failure, Try}
 
 object KeyUtil {
   /** Length of a key line. */

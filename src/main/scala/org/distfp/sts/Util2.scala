@@ -1,9 +1,9 @@
-package org.distfp.sts;
+package org.distfp.sts
 
 import java.io.File
 
-import scala.util.{Success, Failure, Try}
 import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 object Util2 {
   val EOL = "\n"

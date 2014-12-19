@@ -4,11 +4,11 @@ import java.io._
 import java.security._
 import java.security.spec.PKCS8EncodedKeySpec
 
-import scala.util.{Success, Failure, Try}
-import scala.util.control.NonFatal
+import org.distfp.sts.Delim._
+import org.distfp.sts.Util2._
 
-import Delim._
-import Util2._
+import scala.util.control.NonFatal
+import scala.util.{Failure, Try}
 
 class SignatureCreator {
   def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String): Try[Unit] = {

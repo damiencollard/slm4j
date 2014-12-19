@@ -1,7 +1,5 @@
 package org.distfp.sts
 
-import java.security.Signature
-
 trait Text {
   def lines: Array[String]
 }

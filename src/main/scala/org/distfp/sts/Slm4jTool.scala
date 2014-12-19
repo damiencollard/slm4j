@@ -1,10 +1,10 @@
 package org.distfp.sts
 
-import scala.collection.mutable
-import scala.util.{Success, Failure}
-import scala.util.control.NonFatal
+import org.distfp.sts.SignatureValidator.{SignatureMatch, SignatureMismatch}
 
-import SignatureValidator.{SignatureMatch, SignatureMismatch}
+import scala.collection.mutable
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success}
 
 object Slm4jTool {
   private val ACTION_SIGN    = "sign"

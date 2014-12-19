@@ -3,11 +3,11 @@ package org.distfp.sts
 import java.security._
 import java.security.spec.X509EncodedKeySpec
 
-import scala.util.{Success, Try, Failure}
-import scala.util.control.NonFatal
+import org.distfp.sts.Delim._
+import org.distfp.sts.Util2._
 
-import Delim._
-import Util2._
+import scala.util.control.NonFatal
+import scala.util.{Failure, Success, Try}
 
 object SignatureValidator {
   sealed trait SignatureVerification
@@ -16,7 +16,7 @@ object SignatureValidator {
 }
 
 class SignatureValidator {
-  import SignatureValidator._
+  import org.distfp.sts.SignatureValidator._
 
   /** Verifies a signed license file against a public key. */
   def verifyLicense(signedFileName: String, publicKeyFileName: String): Try[SignatureVerification] =
