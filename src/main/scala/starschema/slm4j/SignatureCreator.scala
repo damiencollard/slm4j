@@ -44,16 +44,15 @@ class SignatureCreator {
     SignedText(unsignedText.lines, signature.sign())
   } recoverWith {
     case NonFatal(e) =>
-      Failure(new SlmException("Error processing source file: " + e.getMessage))
+      Failure(new SlmException("Failed signing text: " + e.getMessage))
   }
 
   private def readPrivateKey(fileName: String): Try[PrivateKey] =
     readFileContents(fileName, keepLines = false) map { privateKeyString =>
-      KeyFactory.getInstance("DSA", "SUN").generatePrivate(
-        new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
+      KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException("Error reading private key file: " + e.getMessage))
+        Failure(new SlmException(s"Failed reading private key file '$fileName': " + e.getMessage))
     }
 
   private def readUnsignedText(fileName: String): Try[UnsignedText] =

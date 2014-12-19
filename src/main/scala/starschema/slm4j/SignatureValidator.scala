@@ -30,11 +30,10 @@ class SignatureValidator {
 
   def readPublicKey(fileName: String): Try[PublicKey] =
     readFileContents(fileName, keepLines = false) map { publicKeyString =>
-      KeyFactory.getInstance("DSA").generatePublic(
-        new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
+      KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException("Error reading public key file: " + e.getMessage))
+        Failure(new SlmException(s"Failed reading public key file '$fileName': " + e.getMessage))
     }
 
   private def readSignedText(fileName: String, publicKey: PublicKey): Try[SignedText] =
@@ -57,7 +56,7 @@ class SignatureValidator {
     Base64Coder.decode(sb.toString())
   } recoverWith {
     case NonFatal(e) =>
-      Failure(new SlmException("Error initializing signature: " + e.getMessage))
+      Failure(new SlmException("Failed extracting signature: " + e.getMessage))
   }
 
   private def verifySignedText(signedText: SignedText, publicKey: PublicKey): Try[Boolean] =
@@ -68,6 +67,6 @@ class SignatureValidator {
       computedSig.verify(signedText.signature)
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new SlmException("Failed verifying signature: " + e.getMessage))
+        Failure(new SlmException("Failed verifying signed text: " + e.getMessage))
     }
 }
