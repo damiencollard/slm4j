@@ -2,9 +2,9 @@ package org.distfp.sts
 
 import java.io._
 import java.security._
-import java.security.spec.PKCS8EncodedKeySpec
 
 import org.distfp.sts.Delim._
+import org.distfp.sts.KeyUtil._
 import org.distfp.sts.Util2._
 
 import scala.util.control.NonFatal
@@ -48,14 +48,6 @@ class SignatureCreator {
     case NonFatal(e) =>
       Failure(new StsException("Failed signing text: " + e.getMessage))
   }
-
-  private def readPrivateKey(fileName: String): Try[PrivateKey] =
-    readFileContents(fileName, keepLines = false) map { privateKeyString =>
-      KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
-    } recoverWith {
-      case NonFatal(e) =>
-        Failure(new StsException(s"Failed reading private key file '$fileName': " + e.getMessage))
-    }
 
   private def readUnsignedText(fileName: String): Try[UnsignedText] =
     readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }

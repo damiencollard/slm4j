@@ -1,9 +1,9 @@
 package org.distfp.sts
 
 import java.security._
-import java.security.spec.X509EncodedKeySpec
 
 import org.distfp.sts.Delim._
+import org.distfp.sts.KeyUtil._
 import org.distfp.sts.Util2._
 
 import scala.util.control.NonFatal
@@ -27,14 +27,6 @@ class SignatureValidator {
       ok           <- verifySignedText(signedText, publicKey)
     ) yield {
       if (ok) SignatureMatch(signedText) else SignatureMismatch
-    }
-
-  def readPublicKey(fileName: String): Try[PublicKey] =
-    readFileContents(fileName, keepLines = false) map { publicKeyString =>
-      KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
-    } recoverWith {
-      case NonFatal(e) =>
-        Failure(new StsException(s"Failed reading public key file '$fileName': " + e.getMessage))
     }
 
   private def readSignedText(fileName: String, publicKey: PublicKey, textMarker: String): Try[SignedText] =

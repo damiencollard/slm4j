@@ -2,6 +2,9 @@ package org.distfp.sts
 
 import java.io.{FileWriter, Writer}
 import java.security._
+import java.security.spec.{X509EncodedKeySpec, PKCS8EncodedKeySpec}
+
+import org.distfp.sts.Util2._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
@@ -59,5 +62,21 @@ object KeyUtil {
     } recoverWith {
       case NonFatal(e) =>
         Failure(new StsException("Error writing key: " + e.getMessage))
+    }
+
+  def readPrivateKey(fileName: String): Try[PrivateKey] =
+    readFileContents(fileName, keepLines = false) map { privateKeyString =>
+      KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
+    } recoverWith {
+      case NonFatal(e) =>
+        Failure(new StsException(s"Failed reading private key file '$fileName': " + e.getMessage))
+    }
+
+  def readPublicKey(fileName: String): Try[PublicKey] =
+    readFileContents(fileName, keepLines = false) map { publicKeyString =>
+      KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
+    } recoverWith {
+      case NonFatal(e) =>
+        Failure(new StsException(s"Failed reading public key file '$fileName': " + e.getMessage))
     }
 }
