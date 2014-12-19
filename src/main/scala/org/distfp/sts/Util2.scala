@@ -26,8 +26,8 @@ object Util2 {
     readLines(fileName) map (_.mkString(if (keepLines) "\n" else ""))
 
   /** Returns the lines between the specified delimiters. */
-  def extractLines(lines: Array[String], beginDelim: String, endDelim: String): Array[String] =
-    lines.dropWhile(_ != beginDelim).drop(1).takeWhile(_ != endDelim)
+  def extractLines(lines: Array[String], start: String, stop: String): Array[String] =
+    lines.dropWhile(_ != start).drop(1).takeWhile(_ != stop)
 
   def checkPresent(fileName: String): Try[Unit] =
     if (new File(fileName).exists()) Success(()) else Failure(new SlmException(s"File '$fileName' not found"))
