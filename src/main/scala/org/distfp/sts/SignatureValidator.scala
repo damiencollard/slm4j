@@ -35,13 +35,13 @@ class SignatureValidator {
          sig       <- extractSignature(lines, publicKey))
       yield SignedText(textLines, sig)
 
-  private def extractText(lines: Array[String], textMarker: String): Try[Array[String]] =
+  private def extractText(lines: Seq[String], textMarker: String): Try[Seq[String]] =
     if (textMarker == signatureMarker)
       Failure(new StsException("Text marker cannot be identical to signature marker"))
     else
       Success(extractLines(lines, beginDelim(textMarker), endDelim(textMarker)))
 
-  private def extractSignature(lines: Array[String], publicKey: PublicKey): Try[Array[Byte]] = Try {
+  private def extractSignature(lines: Seq[String], publicKey: PublicKey): Try[Array[Byte]] = Try {
     val sig = Signature.getInstance("SHA1withDSA")
     sig.initVerify(publicKey)
 

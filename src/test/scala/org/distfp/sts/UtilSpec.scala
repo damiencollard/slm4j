@@ -26,17 +26,17 @@ class UtilSpec extends Specification {
     fileName
   }
 
-  val testLines = Array("very short", "text, ", "just", "for testing")
+  val testLines = List("very short", "text, ", "just", "for testing")
 
   "readlines" should {
     "fail if the file does not exist" in {
       val fName = nonExistentFileName()
-      readLines(fName) must beFailedTry[Array[String]].withThrowable[StsException]
+      readLines(fName) must beFailedTry[Seq[String]].withThrowable[StsException]
     }
 
     "return all the lines, unchanged, if the file exists" in {
       val f = createTestFile(testLines)
-      readLines(f.getName) must beSuccessfulTry[Array[String]].withValue(testLines)
+      readLines(f.getName) must beSuccessfulTry[Seq[String]].withValue(testLines)
       f.delete()
     }
   }
@@ -64,12 +64,12 @@ class UtilSpec extends Specification {
 
   "extractLines" should {
     "return no lines if the begin delimiter is not found" in {
-      extractLines(Jabberwocky.all, B, E).deep must_== Array.empty.deep
+      extractLines(Jabberwocky.all, B, E) must_== Seq.empty
     }
 
     "return only the lines between the delimiters if both begin and end are found" in {
-      val firstThree = Jabberwocky(0) ++ Array(B) ++ Jabberwocky(1) ++ Array(E) ++ Jabberwocky(2)
-      extractLines(firstThree, B, E).deep must_== Jabberwocky(1).deep
+      val firstThree = Jabberwocky(0) ++ List(B) ++ Jabberwocky(1) ++ List(E) ++ Jabberwocky(2)
+      extractLines(firstThree, B, E) must_== Jabberwocky(1)
     }
   }
 

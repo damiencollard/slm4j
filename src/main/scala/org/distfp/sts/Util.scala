@@ -9,9 +9,9 @@ object Util {
   val EOL = "\n"
 
   /** Returns the lines of a file. */
-  def readLines(fileName: String): Try[Array[String]] = Try {
+  def readLines(fileName: String): Try[Seq[String]] = Try {
     val source = scala.io.Source.fromFile(fileName)
-    source.getLines().toArray
+    source.getLines().toList
   } recoverWith {
     case NonFatal(e) =>
       Failure(new StsException("Error reading file: " + e.getMessage))
@@ -26,7 +26,7 @@ object Util {
     readLines(fileName) map (_.mkString(if (keepLines) "\n" else ""))
 
   /** Returns the lines between the specified delimiters. */
-  def extractLines(lines: Array[String], start: String, stop: String): Array[String] =
+  def extractLines(lines: Seq[String], start: String, stop: String): Seq[String] =
     lines.dropWhile(_ != start).drop(1).takeWhile(_ != stop)
 
   def checkPresent(fileName: String): Try[Unit] =
