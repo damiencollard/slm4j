@@ -2,11 +2,10 @@ package org.distfp.sts
 
 import org.distfp.sts.SignatureValidator.{SignatureMatch, SignatureMismatch}
 
-import scala.collection.mutable
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
-object Slm4jTool {
+object StsTool {
   private val ACTION_SIGN    = "sign"
   private val ACTION_VERIFY  = "verify"
   private val ACTION_GENKEYS = "genkeys"
