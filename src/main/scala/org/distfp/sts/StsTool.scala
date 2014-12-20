@@ -113,8 +113,8 @@ object StsTool {
 
           val validator = new SignatureValidator
           validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
-            case Success(SignatureMatch(_)) => println("License is valid."); System.exit(0)
-            case Success(SignatureMismatch) => println("License is NOT valid."); System.exit(2)
+            case Success(SignatureMatch(_)) => println("Signed text is valid."); System.exit(0)
+            case Success(SignatureMismatch) => println("Signed text is NOT valid."); System.exit(2)
             case Failure(e)                 => errorExit(e.getMessage)
           }
 
