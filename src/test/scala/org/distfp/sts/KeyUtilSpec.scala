@@ -1,7 +1,7 @@
 package org.distfp.sts
 
 import java.io.{BufferedReader, StringReader, StringWriter}
-import java.security.{PrivateKey, PublicKey}
+import java.security.{Key, PrivateKey, PublicKey}
 
 import org.specs2.mutable.Specification
 
@@ -19,31 +19,21 @@ class KeyUtilSpec extends Specification {
     }
   }
 
-  "writeKey(<private-key>) . readPrivateKey" should {
-    "be identity" in {
-      val (privKey, pubKey) = genKeyPair().get
+  def writeReadIsIdentity[K <: Key](key: K)(implicit kr: KeyReader[K]): Boolean = {
+    val w = new StringWriter
+    writeKey(key, w)
+    w.close()
+    val str = w.toString
 
-      val w = new StringWriter
-      writeKey(privKey, w)
-      w.close()
-      val str = w.toString
-
-      val r = new BufferedReader(new StringReader(str))
-      readKey[PrivateKey](r) must beSuccessfulTry[PrivateKey].withValue(privKey)
-    }
+    val r = new BufferedReader(new StringReader(str))
+    readKey[K](r) must beSuccessfulTry[K].withValue(key)
   }
 
-  "writeKey(<public-key>) . readPublicKey" should {
+  "writeKey . read" should {
     "be identity" in {
       val (privKey, pubKey) = genKeyPair().get
-
-      val w = new StringWriter
-      writeKey(pubKey, w)
-      w.close()
-      val str = w.toString
-
-      val r = new BufferedReader(new StringReader(str))
-      readKey[PublicKey](r) must beSuccessfulTry[PublicKey].withValue(pubKey)
+      writeReadIsIdentity(privKey)
+      writeReadIsIdentity(pubKey)
     }
   }
 }
