@@ -62,7 +62,7 @@ object KeyUtil {
         Failure(new StsException("Error writing key: " + e.getMessage))
     }
 
-  abstract class KeyReader[K] {
+  abstract class KeyReader[K <: Key] {
     def readKey(r: BufferedReader): Try[K]
   }
 
@@ -86,11 +86,11 @@ object KeyUtil {
       }
   }
 
-  def readKey[K](fileName: String)(implicit kr: KeyReader[K]): Try[K] =
+  def readKey[K <: Key](fileName: String)(implicit kr: KeyReader[K]): Try[K] =
     Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
       kr.readKey(r) thenAlways { r.close() }
     }
 
-  def readKey[K](r: BufferedReader)(implicit kr: KeyReader[K]): Try[K] =
+  def readKey[K <: Key](r: BufferedReader)(implicit kr: KeyReader[K]): Try[K] =
     kr.readKey(r)
 }
