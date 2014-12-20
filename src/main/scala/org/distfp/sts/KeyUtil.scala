@@ -48,9 +48,9 @@ object KeyUtil {
 
   def writeKey(key: Array[Char], w: Writer): Try[Unit] =
     Try {
-      for (i <- 0 until key.length by SIGNATURE_LINE_LENGTH) {
-        w.write(key, i, Math.min(key.length - i, SIGNATURE_LINE_LENGTH))
-        if (key.length - i > SIGNATURE_LINE_LENGTH)
+      key.grouped(SIGNATURE_LINE_LENGTH) foreach { chars =>
+        w.write(chars)
+        if (chars.length == SIGNATURE_LINE_LENGTH)
           w.write(Util.EOL)
       }
     } recoverWith {
