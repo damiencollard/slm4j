@@ -12,7 +12,7 @@ import scala.util.{Failure, Try}
 
 import Control._
 
-class SignatureCreator {
+class SignedTextCreator {
   def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String,
                   textMarker: String = defaultTextMarker): Try[Unit] = {
     def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>

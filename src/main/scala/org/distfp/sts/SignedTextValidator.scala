@@ -9,14 +9,14 @@ import org.distfp.sts.Util._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-object SignatureValidator {
+object SignedTextValidator {
   sealed trait SignatureVerification
   case class SignatureMatch(text: Text) extends SignatureVerification
   case object SignatureMismatch extends SignatureVerification
 }
 
-class SignatureValidator {
-  import org.distfp.sts.SignatureValidator._
+class SignedTextValidator {
+  import org.distfp.sts.SignedTextValidator._
 
   /** Verifies a signed license file against a public key. */
   def verifyLicense(signedFileName: String, publicKeyFileName: String,

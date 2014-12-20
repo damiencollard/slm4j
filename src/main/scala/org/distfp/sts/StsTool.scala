@@ -1,6 +1,6 @@
 package org.distfp.sts
 
-import org.distfp.sts.SignatureValidator.{SignatureMatch, SignatureMismatch}
+import org.distfp.sts.SignedTextValidator.{SignatureMatch, SignatureMismatch}
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
@@ -100,7 +100,7 @@ object StsTool {
           val outputFileName     = getParam(PARAM_OUTPUTFILE)
           val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-          val creator = new SignatureCreator
+          val creator = new SignedTextCreator
           creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
             case Success(()) => ()
             case Failure(e)  => errorExit(e)
@@ -111,7 +111,7 @@ object StsTool {
           val inputFileName     = getParam(PARAM_INPUTFILE)
           val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-          val validator = new SignatureValidator
+          val validator = new SignedTextValidator
           validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
             case Success(SignatureMatch(_)) => println("Signed text is valid."); System.exit(0)
             case Success(SignatureMismatch) => println("Signed text is NOT valid."); System.exit(2)
