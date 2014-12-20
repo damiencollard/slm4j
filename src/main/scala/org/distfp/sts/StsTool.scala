@@ -1,5 +1,7 @@
 package org.distfp.sts
 
+import java.security.PublicKey
+
 import org.distfp.sts.SignedTextValidator.{SignatureMatch, SignatureMismatch}
 
 import scala.util.control.NonFatal
@@ -111,8 +113,11 @@ object StsTool {
           val inputFileName     = getParam(PARAM_INPUTFILE)
           val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-          val validator = new SignedTextValidator
-          validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
+          (for (publicKey <- KeyUtil.readKey[PublicKey](publicKeyFileName);
+                validator  = new SignedTextValidator;
+                result    <- validator.verifyTextFile(inputFileName, publicKey, textMarker))
+             yield result
+          ) match {
             case Success(SignatureMatch(_)) => println("Signed text is valid."); System.exit(0)
             case Success(SignatureMismatch) => println("Signed text is NOT valid."); System.exit(2)
             case Failure(e)                 => errorExit(e)

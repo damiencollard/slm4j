@@ -19,15 +19,13 @@ class SignedTextValidator {
   import org.distfp.sts.SignedTextValidator._
 
   /** Verifies a signed license file against a public key. */
-  def verifyLicense(signedFileName: String, publicKeyFileName: String,
+  def verifyTextFile(signedFileName: String, publicKey: PublicKey,
                     textMarker: String = defaultTextMarker): Try[SignatureVerification] =
-    for (
-      publicKey    <- readKey[PublicKey](publicKeyFileName);
-      signedText   <- readSignedText(signedFileName, publicKey, textMarker);
-      ok           <- verifySignedText(signedText, publicKey)
-    ) yield {
-      if (ok) SignatureMatch(signedText) else SignatureMismatch
-    }
+    for (signedText <- readSignedText(signedFileName, publicKey, textMarker);
+         ok         <- verifySignedText(signedText, publicKey))
+      yield {
+        if (ok) SignatureMatch(signedText) else SignatureMismatch
+      }
 
   private def readSignedText(fileName: String, publicKey: PublicKey, textMarker: String): Try[SignedText] =
     for (lines     <- readLines(fileName);

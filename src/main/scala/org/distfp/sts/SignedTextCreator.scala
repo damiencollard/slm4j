@@ -47,10 +47,15 @@ class SignedTextCreator {
       Failure(new StsException("Failed signing text", e))
   }
 
-  private def readUnsignedText(fileName: String): Try[UnsignedText] =
+  def readUnsignedText(fileName: String): Try[UnsignedText] =
     readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }
 
-  private def writeSignedText(signedText: SignedText, w: Writer, textMarker: String): Try[Unit] =
+  def writeSignedText(signedText: SignedText, fileName: String, textMarker: String): Try[Unit] =
+    Try { new FileWriter(fileName) } flatMap { w =>
+      writeSignedText(signedText, w, textMarker) thenAlways { w.close() }
+    }
+
+  def writeSignedText(signedText: SignedText, w: Writer, textMarker: String): Try[Unit] =
     if (textMarker == signatureMarker)
       Failure(new StsException("Text marker cannot be identical to signature marker"))
     else Try {
