@@ -18,7 +18,7 @@ object KeyUtil {
   def generateKeys(privateKeyFileName: String, publicKeyFileName: String): Try[Unit] = {
     genKeyPair() recoverWith {
       case NonFatal(e) =>
-        Failure(new StsException("Error generating keys: " + e.getMessage))
+        Failure(new StsException("Error generating keys", e))
     }
     for (
       (privateKey, publicKey) <- genKeyPair();
@@ -55,7 +55,7 @@ object KeyUtil {
       }
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new StsException("Error writing key: " + e.getMessage))
+        Failure(new StsException("Error writing key", e))
     }
 
   abstract class KeyReader[K <: Key] {
@@ -68,7 +68,7 @@ object KeyUtil {
         KeyFactory.getInstance("DSA", "SUN").generatePrivate(new PKCS8EncodedKeySpec(Base64Coder.decode(privateKeyString)))
       } recoverWith {
         case NonFatal(e) =>
-          Failure(new StsException(s"Failed reading private key: ${e.getMessage}"))
+          Failure(new StsException("Failed reading private key", e))
       }
   }
 
@@ -78,7 +78,7 @@ object KeyUtil {
         KeyFactory.getInstance("DSA").generatePublic(new X509EncodedKeySpec(Base64Coder.decode(publicKeyString)))
       } recoverWith {
         case NonFatal(e) =>
-          Failure(new StsException(s"Failed reading public key: ${e.getMessage}"))
+          Failure(new StsException("Failed reading public key", e))
       }
   }
 

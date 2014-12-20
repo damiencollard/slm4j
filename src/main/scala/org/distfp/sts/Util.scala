@@ -15,7 +15,7 @@ object Util {
     Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
       readLines(r) thenAlways { r.close() }
     } recoverWith {
-      case NonFatal(e) => Failure(new StsException(s"Failed reading file '$fileName': ${e.getMessage}"))
+      case NonFatal(e) => Failure(new StsException(s"Failed reading file '$fileName'", e))
     }
 
   def readLines(r: BufferedReader): Try[Seq[String]] = Try {
@@ -33,7 +33,7 @@ object Util {
     Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
       readContents(r, keepLines) thenAlways { r.close() }
     } recoverWith {
-      case NonFatal(e) => Failure(new StsException(s"Failed reading file '$fileName': ${e.getMessage}"))
+      case NonFatal(e) => Failure(new StsException(s"Failed reading file '$fileName'", e))
     }
 
   def readContents(r: BufferedReader, keepLines: Boolean = true): Try[String] =

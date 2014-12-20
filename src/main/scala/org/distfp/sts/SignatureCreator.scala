@@ -44,7 +44,7 @@ class SignatureCreator {
     SignedText(unsignedText.lines, signature.sign())
   } recoverWith {
     case NonFatal(e) =>
-      Failure(new StsException("Failed signing text: " + e.getMessage))
+      Failure(new StsException("Failed signing text", e))
   }
 
   private def readUnsignedText(fileName: String): Try[UnsignedText] =

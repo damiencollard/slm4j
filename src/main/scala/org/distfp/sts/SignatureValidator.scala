@@ -52,7 +52,7 @@ class SignatureValidator {
     Base64Coder.decode(sb.toString())
   } recoverWith {
     case NonFatal(e) =>
-      Failure(new StsException("Failed extracting signature: " + e.getMessage))
+      Failure(new StsException("Failed extracting signature", e))
   }
 
   private def verifySignedText(signedText: SignedText, publicKey: PublicKey): Try[Boolean] =
@@ -63,6 +63,6 @@ class SignatureValidator {
       computedSig.verify(signedText.signature)
     } recoverWith {
       case NonFatal(e) =>
-        Failure(new StsException("Failed verifying signed text: " + e.getMessage))
+        Failure(new StsException("Failed verifying signed text", e))
     }
 }

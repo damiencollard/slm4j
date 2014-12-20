@@ -103,7 +103,7 @@ object StsTool {
           val creator = new SignatureCreator
           creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
             case Success(()) => ()
-            case Failure(e)  => errorExit(e.getMessage)
+            case Failure(e)  => errorExit(e)
           }
 
         case ACTION_VERIFY =>
@@ -115,16 +115,16 @@ object StsTool {
           validator.verifyLicense(inputFileName, publicKeyFileName, textMarker) match {
             case Success(SignatureMatch(_)) => println("Signed text is valid."); System.exit(0)
             case Success(SignatureMismatch) => println("Signed text is NOT valid."); System.exit(2)
-            case Failure(e)                 => errorExit(e.getMessage)
+            case Failure(e)                 => errorExit(e)
           }
 
         case ACTION_GENKEYS =>
-          val baseName = parameters(PARAM_BASENAME);
+          val baseName = parameters(PARAM_BASENAME)
           val privateKeyFileName = baseName
           val publicKeyFileName  = baseName + ".pub"
           KeyUtil.generateKeys(privateKeyFileName, publicKeyFileName) match {
             case Success(()) => ()
-            case Failure(e)  => errorExit(e.getMessage)
+            case Failure(e)  => errorExit(e)
           }
 
         case _ =>
@@ -132,16 +132,20 @@ object StsTool {
       }
     } catch {
       case NonFatal(e) =>
-        errorExit("Lcense validation failed: " + e.getMessage)
+        errorExit("License validation failed: " + e.getMessage)
     }
   }
 
   def exitInvalid(): Unit =
     errorExit("Invalid commandline")
 
-  private def errorExit(msg: => String, exitCode: Int = 1): Unit = {
+  private def errorExit(e: Throwable): Unit =
+    if (e.getCause != null) errorExit(s"${e.getMessage}: ${e.getCause.getMessage}")
+    else errorExit(e.getMessage)
+
+  private def errorExit(msg: => String): Unit = {
     printError(msg)
-    System.exit(exitCode)
+    System.exit(1)
   }
 
   private def printError(msg: => String): Unit =
