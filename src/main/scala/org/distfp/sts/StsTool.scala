@@ -8,16 +8,16 @@ import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
 
 object StsTool {
-  private val ACTION_SIGN    = "sign"
-  private val ACTION_VERIFY  = "verify"
-  private val ACTION_GENKEYS = "genkeys"
+  private val ActionSign    = "sign"
+  private val ActionVerify  = "verify"
+  private val ActionGenKeys = "genkeys"
 
-  private val PARAM_INPUTFILE  = "--input"
-  private val PARAM_OUTPUTFILE = "--output"
-  private val PARAM_PUBLICKEY  = "--public-key"
-  private val PARAM_PRIVATEKEY = "--private-key"
-  private val PARAM_BASENAME   = "--base-name"
-  private val PARAM_TEXTMARKER = "--text-marker"
+  private val ParamInputFile  = "--input"
+  private val ParamOutputFile = "--output"
+  private val ParamPublicKey  = "--public-key"
+  private val ParamPrivateKey = "--private-key"
+  private val ParamBaseName   = "--base-name"
+  private val ParamTextMarker = "--text-marker"
 
   def main(args: Array[String]): Unit = {
     try {
@@ -84,23 +84,23 @@ object StsTool {
     try {
       if (arguments.drop(1).length % 2 != 0)
         exitInvalid()
-      val parameters = {
+      val params = {
         val options = arguments.drop(1).grouped(2).toList.map(o => o(0) -> o(1))
         Map(options: _*)
       }
 
       def getParam(name: String): String =
-        parameters.get(name) getOrElse { exitInvalid(); "" }
+        params.get(name) getOrElse { exitInvalid(); "" }
 
       def getOptParam(param: String, default: String): String =
-        parameters.getOrElse(param, default)
+        params.getOrElse(param, default)
 
       arguments(0) match {
-        case ACTION_SIGN =>
-          val privateKeyFileName = getParam(PARAM_PRIVATEKEY)
-          val inputFileName      = getParam(PARAM_INPUTFILE)
-          val outputFileName     = getParam(PARAM_OUTPUTFILE)
-          val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
+        case ActionSign =>
+          val privateKeyFileName = getParam(ParamPrivateKey)
+          val inputFileName      = getParam(ParamInputFile)
+          val outputFileName     = getParam(ParamOutputFile)
+          val textMarker         = getOptParam(ParamTextMarker, Delim.defaultTextMarker)
 
           (for (privateKey <- StsKey.readKey[PrivateKey](privateKeyFileName);
                 creator     = new SignedTextCreator;
@@ -111,10 +111,10 @@ object StsTool {
             case Failure(e)  => errorExit(e)
           }
 
-        case ACTION_VERIFY =>
-          val publicKeyFileName = getParam(PARAM_PUBLICKEY)
-          val inputFileName     = getParam(PARAM_INPUTFILE)
-          val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
+        case ActionVerify =>
+          val publicKeyFileName = getParam(ParamPublicKey)
+          val inputFileName     = getParam(ParamInputFile)
+          val textMarker        = getOptParam(ParamTextMarker, Delim.defaultTextMarker)
 
           (for (publicKey <- StsKey.readKey[PublicKey](publicKeyFileName);
                 validator  = new SignedTextValidator;
@@ -126,8 +126,8 @@ object StsTool {
             case Failure(e)                 => errorExit(e)
           }
 
-        case ACTION_GENKEYS =>
-          val baseName = parameters(PARAM_BASENAME)
+        case ActionGenKeys =>
+          val baseName = params(ParamBaseName)
           val privateKeyFileName = baseName
           val publicKeyFileName  = baseName + ".pub"
           StsKey.generateKeys(privateKeyFileName, publicKeyFileName) match {
