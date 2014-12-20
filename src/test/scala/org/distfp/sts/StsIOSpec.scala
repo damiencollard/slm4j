@@ -8,7 +8,7 @@ import org.specs2.mutable.Specification
 import Delim._
 import StsIO._
 
-class UtilSpec extends Specification {
+class StsIOSpec extends Specification {
 
   private def randomFileName: String = UUID.randomUUID.toString
 

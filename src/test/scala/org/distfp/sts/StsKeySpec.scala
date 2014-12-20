@@ -7,7 +7,7 @@ import org.specs2.mutable.Specification
 
 import StsKey._
 
-class KeyUtilSpec extends Specification {
+class StsKeySpec extends Specification {
   "writeKey" should {
     "write the Array[Char] key to the writer" in {
       val testString = "Just testing"
