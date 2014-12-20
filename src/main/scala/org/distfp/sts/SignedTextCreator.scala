@@ -35,7 +35,7 @@ class SignedTextCreator {
     ) yield ()
   }
 
-  private def signText(unsignedText: UnsignedText, privateKey: PrivateKey): Try[SignedText] = Try {
+  def signText(unsignedText: UnsignedText, privateKey: PrivateKey): Try[SignedText] = Try {
     val signature = Signature.getInstance("SHA1withDSA", "SUN")
     signature.initSign(privateKey)
     unsignedText.lines foreach { line =>

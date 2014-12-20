@@ -55,7 +55,7 @@ class SignedTextValidator {
       Failure(new StsException("Failed extracting signature", e))
   }
 
-  private def verifySignedText(signedText: SignedText, publicKey: PublicKey): Try[Boolean] =
+  def verifySignedText(signedText: SignedText, publicKey: PublicKey): Try[Boolean] =
     Try {
       val computedSig = Signature.getInstance("SHA1withDSA")
       computedSig.initVerify(publicKey)
