@@ -3,13 +3,13 @@ package org.distfp.sts
 import java.io._
 import java.security._
 
-import org.distfp.sts.Delim._
+import org.distfp.sts.StsDelim._
 import org.distfp.sts.StsIO._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
-import Control._
+import StsControl._
 
 class StsSigner {
   def signTextFile(inputFileName: String, privateKey: PrivateKey, outputFileName: String,
@@ -31,27 +31,27 @@ class StsSigner {
       yield ()
   }
 
-  def signText(unsignedText: UnsignedText, privateKey: PrivateKey): Try[SignedText] = Try {
+  def signText(unsignedText: StsUnsignedText, privateKey: PrivateKey): Try[StsSignedText] = Try {
     val signature = Signature.getInstance("SHA1withDSA", "SUN")
     signature.initSign(privateKey)
     unsignedText.lines foreach { line =>
       signature.update(line.getBytes, 0, line.getBytes.length)
     }
-    SignedText(unsignedText.lines, signature.sign())
+    StsSignedText(unsignedText.lines, signature.sign())
   } recoverWith {
     case NonFatal(e) =>
       Failure(new StsException("Failed signing text", e))
   }
 
-  def readUnsignedText(fileName: String): Try[UnsignedText] =
-    readLines(fileName) flatMap { lines => Try { UnsignedText(lines) } }
+  def readUnsignedText(fileName: String): Try[StsUnsignedText] =
+    readLines(fileName) flatMap { lines => Try { StsUnsignedText(lines) } }
 
-  def writeSignedText(signedText: SignedText, fileName: String, textMarker: String): Try[Unit] =
+  def writeSignedText(signedText: StsSignedText, fileName: String, textMarker: String): Try[Unit] =
     Try { new FileWriter(fileName) } flatMap { w =>
       writeSignedText(signedText, w, textMarker) thenAlways { w.close() }
     }
 
-  def writeSignedText(signedText: SignedText, w: Writer, textMarker: String): Try[Unit] =
+  def writeSignedText(signedText: StsSignedText, w: Writer, textMarker: String): Try[Unit] =
     if (textMarker == signatureMarker)
       Failure(new StsException("Text marker cannot be identical to signature marker"))
     else Try {

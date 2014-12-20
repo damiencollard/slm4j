@@ -2,18 +2,18 @@ package org.distfp.sts
 
 import org.specs2.mutable.Specification
 
-import Delim._
+import StsDelim._
 
 class TextSpec extends Specification {
   "UnsignedText" should {
     "raise SlmException if the text contains the separator" in {
       val lines = Array("one", "two", delimSeparator + "three", "four")
-      UnsignedText(lines) must throwA[StsException]
+      StsUnsignedText(lines) must throwA[StsException]
     }
 
     "succeed if the text does not contain any separator" in {
       val lines = Jabberwocky(0)
-      UnsignedText(lines)
+      StsUnsignedText(lines)
       true
     }
   }

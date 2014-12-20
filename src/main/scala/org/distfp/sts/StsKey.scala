@@ -9,7 +9,7 @@ import org.distfp.sts.StsIO._
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
-import Control._
+import StsControl._
 
 object StsKey {
   /** Length of a key line. */

@@ -2,9 +2,9 @@ package org.distfp.sts
 
 import org.specs2.mutable.Specification
 
-import Delim._
+import StsDelim._
 
-class DelimSpec extends Specification {
+class StsDelimSpec extends Specification {
   val testMarkers = Seq("", "dummy", "THING With SpACeS")
 
   "beginDelim" should {

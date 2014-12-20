@@ -35,6 +35,7 @@ object StsTool {
   }
 
   private def printUsage(): Unit = {
+    import StsDelim._
     val self = "sts.sh"
     println(s"""
       |Usage: $self <action> [parameters]
@@ -47,12 +48,12 @@ object StsTool {
       |        Signs file <in-file> using the private DSA key read from <key-file>
       |        and write the result in <out-file>.
       |
-      |        Lines in the input file *cannot* start with '${Delim.delimSeparator}' as it's
+      |        Lines in the input file *cannot* start with '${delimSeparator}' as it's
       |        the delimiter used to separate text from signature in signed files.
       |
       |        You can optionally specify the marker to use in the text delimiters.
-      |        The default is "${Delim.defaultTextMarker}". It can't be identical to the signature
-      |        marker, "${Delim.signatureMarker}".
+      |        The default is "${defaultTextMarker}". It can't be identical to the signature
+      |        marker, "${signatureMarker}".
       |
       |        Exit codes: 0 if the file is successfully signed, 1 on error.
       |
@@ -64,7 +65,7 @@ object StsTool {
       |        DSA key read from <key-file>.
       |
       |        You should specify the marker used in the text delimiters unless it's the
-      |        default "${Delim.defaultTextMarker}".
+      |        default "${defaultTextMarker}".
       |
       |        Exit codes: 0 if the license is valid, 2 if not, and 1 on error.
       |
@@ -100,7 +101,7 @@ object StsTool {
           val privateKeyFileName = getParam(ParamPrivateKey)
           val inputFileName      = getParam(ParamInputFile)
           val outputFileName     = getParam(ParamOutputFile)
-          val textMarker         = getOptParam(ParamTextMarker, Delim.defaultTextMarker)
+          val textMarker         = getOptParam(ParamTextMarker, StsDelim.defaultTextMarker)
 
           (for (privateKey <- StsKey.readKey[PrivateKey](privateKeyFileName);
                 creator     = new StsSigner;
@@ -114,7 +115,7 @@ object StsTool {
         case ActionVerify =>
           val publicKeyFileName = getParam(ParamPublicKey)
           val inputFileName     = getParam(ParamInputFile)
-          val textMarker        = getOptParam(ParamTextMarker, Delim.defaultTextMarker)
+          val textMarker        = getOptParam(ParamTextMarker, StsDelim.defaultTextMarker)
 
           (for (publicKey <- StsKey.readKey[PublicKey](publicKeyFileName);
                 validator  = new StsValidator;

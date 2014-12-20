@@ -5,7 +5,7 @@ import java.util.UUID
 
 import org.specs2.mutable.Specification
 
-import Delim._
+import StsDelim._
 import StsIO._
 
 class StsIOSpec extends Specification {

@@ -1,6 +1,6 @@
 package org.distfp.sts
 
-object Delim {
+object StsDelim {
     val defaultTextMarker = "TEXT"
     val signatureMarker   = "SIGNATURE"
 

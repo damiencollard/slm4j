@@ -5,7 +5,7 @@ import java.io.{FileReader, BufferedReader, File}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
-import Control._
+import StsControl._
 
 object StsIO {
   val EOL = "\n"
