@@ -102,7 +102,7 @@ object StsTool {
           val outputFileName     = getParam(PARAM_OUTPUTFILE)
           val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-          (for (privateKey <- KeyUtil.readKey[PrivateKey](privateKeyFileName);
+          (for (privateKey <- StsKey.readKey[PrivateKey](privateKeyFileName);
                 creator     = new SignedTextCreator;
                 result     <- creator.signTextFile(inputFileName, privateKey, outputFileName, textMarker))
              yield result
@@ -116,7 +116,7 @@ object StsTool {
           val inputFileName     = getParam(PARAM_INPUTFILE)
           val textMarker        = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-          (for (publicKey <- KeyUtil.readKey[PublicKey](publicKeyFileName);
+          (for (publicKey <- StsKey.readKey[PublicKey](publicKeyFileName);
                 validator  = new SignedTextValidator;
                 result    <- validator.verifyTextFile(inputFileName, publicKey, textMarker))
              yield result
@@ -130,7 +130,7 @@ object StsTool {
           val baseName = parameters(PARAM_BASENAME)
           val privateKeyFileName = baseName
           val publicKeyFileName  = baseName + ".pub"
-          KeyUtil.generateKeys(privateKeyFileName, publicKeyFileName) match {
+          StsKey.generateKeys(privateKeyFileName, publicKeyFileName) match {
             case Success(()) => ()
             case Failure(e)  => errorExit(e)
           }

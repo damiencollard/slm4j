@@ -3,7 +3,6 @@ package org.distfp.sts
 import java.security._
 
 import org.distfp.sts.Delim._
-import org.distfp.sts.KeyUtil._
 import org.distfp.sts.Util._
 
 import scala.util.control.NonFatal

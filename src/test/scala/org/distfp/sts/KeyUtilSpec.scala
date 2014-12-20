@@ -5,7 +5,7 @@ import java.security.{Key, PrivateKey, PublicKey}
 
 import org.specs2.mutable.Specification
 
-import KeyUtil._
+import StsKey._
 
 class KeyUtilSpec extends Specification {
   "writeKey" should {

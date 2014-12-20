@@ -11,7 +11,7 @@ import scala.util.{Failure, Try}
 
 import Control._
 
-object KeyUtil {
+object StsKey {
   /** Length of a key line. */
   val SIGNATURE_LINE_LENGTH = 20
 

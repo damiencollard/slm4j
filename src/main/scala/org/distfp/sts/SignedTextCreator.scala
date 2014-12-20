@@ -70,7 +70,7 @@ class SignedTextCreator {
       w.write(EOL)
 
       // Write using same formatting as for keys.
-      KeyUtil.writeKey(base64Sig, w)
+      StsKey.writeKey(base64Sig, w)
       w.write(EOL)
       w.write(signatureEnd)
     }
