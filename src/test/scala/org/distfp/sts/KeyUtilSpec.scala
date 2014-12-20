@@ -19,7 +19,7 @@ class KeyUtilSpec extends Specification {
     }
   }
 
-  def writeReadIsIdentity[K <: Key](key: K)(implicit kr: KeyReader[K]): Boolean = {
+  private def writeReadIsIdentity[K <: Key](key: K)(implicit kr: KeyReader[K]): Boolean = {
     val w = new StringWriter
     writeKey(key, w)
     w.close()
@@ -34,6 +34,18 @@ class KeyUtilSpec extends Specification {
       val (privKey, pubKey) = genKeyPair().get
       writeReadIsIdentity(privKey)
       writeReadIsIdentity(pubKey)
+    }
+  }
+
+  "readFromResource" should {
+    "read a key from resources" in {
+      val pubKeyF = readKey[PublicKey]("src/test/resources/testKey.pub").get
+      val pubKeyR = readKeyFromResource[PublicKey]("testKey.pub").get
+      pubKeyR must_== pubKeyF
+
+      val privKeyF = readKey[PrivateKey]("src/test/resources/testKey").get
+      val privKeyR = readKeyFromResource[PrivateKey]("testKey").get
+      privKeyR must_== privKeyF
     }
   }
 }

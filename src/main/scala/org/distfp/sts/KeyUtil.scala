@@ -90,8 +90,7 @@ object KeyUtil {
   def readKey[K <: Key](r: BufferedReader)(implicit kr: KeyReader[K]): Try[K] =
     kr.readKey(r)
 
-  def readKeyFromResource[K <: Key](resourceName: String,
-                                    classLoader: ClassLoader = Thread.currentThread.getContextClassLoader)
+  def readKeyFromResource[K <: Key](resourceName: String, classLoader: ClassLoader = getClass.getClassLoader)
                                    (implicit kr: KeyReader[K]): Try[K] =
     Try { new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(resourceName))) } flatMap { r =>
       kr.readKey(r)
