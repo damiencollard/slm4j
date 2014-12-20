@@ -1,6 +1,6 @@
 package org.distfp.sts
 
-import java.io.{FileReader, BufferedReader, FileWriter, Writer}
+import java.io._
 import java.security._
 import java.security.spec.{X509EncodedKeySpec, PKCS8EncodedKeySpec}
 
@@ -89,4 +89,11 @@ object KeyUtil {
 
   def readKey[K <: Key](r: BufferedReader)(implicit kr: KeyReader[K]): Try[K] =
     kr.readKey(r)
+
+  def readKeyFromResource[K <: Key](resourceName: String,
+                                    classLoader: ClassLoader = Thread.currentThread.getContextClassLoader)
+                                   (implicit kr: KeyReader[K]): Try[K] =
+    Try { new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(resourceName))) } flatMap { r =>
+      kr.readKey(r)
+    }
 }
