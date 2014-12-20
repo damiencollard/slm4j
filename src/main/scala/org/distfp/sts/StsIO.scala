@@ -40,13 +40,13 @@ object StsIO {
     readLines(r) map (_.mkString(if (keepLines) "\n" else ""))
 
   /** Returns the lines between the specified delimiters. */
-  def extractLines(lines: Seq[String], start: String, stop: String): Seq[String] =
+  private[sts] def extractLines(lines: Seq[String], start: String, stop: String): Seq[String] =
     lines.dropWhile(_ != start).drop(1).takeWhile(_ != stop)
 
-  def checkPresent(fileName: String): Try[Unit] =
+  private[sts] def checkPresent(fileName: String): Try[Unit] =
     if (new File(fileName).exists()) Success(()) else Failure(new StsException(s"File '$fileName' not found"))
 
-  def checkAbsent(fileName: String): Try[Unit] =
+  private[sts] def checkAbsent(fileName: String): Try[Unit] =
     if (new File(fileName).exists()) Failure(new StsException(s"File '$fileName' already exists")) else Success(())
 }
 
