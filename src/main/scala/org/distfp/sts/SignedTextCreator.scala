@@ -4,7 +4,6 @@ import java.io._
 import java.security._
 
 import org.distfp.sts.Delim._
-import org.distfp.sts.KeyUtil._
 import org.distfp.sts.Util._
 
 import scala.util.control.NonFatal
@@ -13,26 +12,23 @@ import scala.util.{Failure, Try}
 import Control._
 
 class SignedTextCreator {
-  def signLicense(licenseFileName: String, privateKeyFileName: String, outputFileName: String,
-                  textMarker: String = defaultTextMarker): Try[Unit] = {
+  def signTextFile(inputFileName: String, privateKey: PrivateKey, outputFileName: String,
+                   textMarker: String = defaultTextMarker): Try[Unit] = {
     def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>
-      signLicense(licenseFileName, privateKeyFileName, writer, textMarker) thenAlways { writer.close() }
+      signTextFile(inputFileName, privateKey, writer, textMarker) thenAlways { writer.close() }
     }
-    for (_ <- checkPresent(licenseFileName);
-         _ <- checkPresent(privateKeyFileName);
+    for (_ <- checkPresent(inputFileName);
          _ <- checkAbsent(outputFileName);
          _ <- doSign())
-    yield ()
+      yield ()
   }
 
-  def signLicense(licenseFileName: String, privateKeyFileName: String, w: Writer,
-                  textMarker: String): Try[Unit] = {
-    for (
-      privateKey   <- readKey[PrivateKey](privateKeyFileName);
-      unsignedText <- readUnsignedText(licenseFileName);
-      signedText   <- signText(unsignedText, privateKey);
-      _            <- writeSignedText(signedText, w, textMarker)
-    ) yield ()
+  def signTextFile(inputFileName: String, privateKey: PrivateKey, w: Writer,
+                   textMarker: String): Try[Unit] = {
+    for (unsignedText <- readUnsignedText(inputFileName);
+         signedText   <- signText(unsignedText, privateKey);
+         _            <- writeSignedText(signedText, w, textMarker))
+      yield ()
   }
 
   def signText(unsignedText: UnsignedText, privateKey: PrivateKey): Try[SignedText] = Try {

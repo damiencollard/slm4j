@@ -1,6 +1,6 @@
 package org.distfp.sts
 
-import java.security.PublicKey
+import java.security.{PrivateKey, PublicKey}
 
 import org.distfp.sts.SignedTextValidator.{SignatureMatch, SignatureMismatch}
 
@@ -102,8 +102,11 @@ object StsTool {
           val outputFileName     = getParam(PARAM_OUTPUTFILE)
           val textMarker         = getOptParam(PARAM_TEXTMARKER, Delim.defaultTextMarker)
 
-          val creator = new SignedTextCreator
-          creator.signLicense(inputFileName, privateKeyFileName, outputFileName, textMarker) match {
+          (for (privateKey <- KeyUtil.readKey[PrivateKey](privateKeyFileName);
+                creator     = new SignedTextCreator;
+                result     <- creator.signTextFile(inputFileName, privateKey, outputFileName, textMarker))
+             yield result
+          ) match {
             case Success(()) => ()
             case Failure(e)  => errorExit(e)
           }
