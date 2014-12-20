@@ -7,7 +7,7 @@ organization := "org.distfp"
 scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
-  "org.specs2"         %% "specs2-core"        % "2.4.11"        % "test"
+  "org.specs2" %% "specs2-core" % "2.4.11" % "test"
 )
 
 TaskKey[Seq[File]]("mksh") <<= (baseDirectory, fullClasspath in Runtime) map { (base, cp) =>
