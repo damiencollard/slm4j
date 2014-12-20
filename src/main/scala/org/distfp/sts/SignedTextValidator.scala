@@ -3,7 +3,7 @@ package org.distfp.sts
 import java.security._
 
 import org.distfp.sts.Delim._
-import org.distfp.sts.Util._
+import org.distfp.sts.StsIO._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}

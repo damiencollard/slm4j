@@ -4,7 +4,7 @@ import java.io._
 import java.security._
 import java.security.spec.{X509EncodedKeySpec, PKCS8EncodedKeySpec}
 
-import org.distfp.sts.Util._
+import org.distfp.sts.StsIO._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
@@ -51,7 +51,7 @@ object StsKey {
       key.grouped(SIGNATURE_LINE_LENGTH) foreach { chars =>
         w.write(chars)
         if (chars.length == SIGNATURE_LINE_LENGTH)
-          w.write(Util.EOL)
+          w.write(StsIO.EOL)
       }
     } recoverWith {
       case NonFatal(e) =>

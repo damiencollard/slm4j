@@ -6,7 +6,7 @@ import java.util.UUID
 import org.specs2.mutable.Specification
 
 import Delim._
-import Util._
+import StsIO._
 
 class UtilSpec extends Specification {
 

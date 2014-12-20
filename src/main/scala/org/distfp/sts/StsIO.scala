@@ -7,7 +7,7 @@ import scala.util.{Failure, Success, Try}
 
 import Control._
 
-object Util {
+object StsIO {
   val EOL = "\n"
 
   /** Returns the lines of a file. */
