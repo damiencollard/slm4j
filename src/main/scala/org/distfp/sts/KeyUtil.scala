@@ -38,10 +38,6 @@ object KeyUtil {
   def writeKey(key: Key, fileName: String): Try[Unit] =
     Try { new FileWriter(fileName) } flatMap { w =>
       writeKey(key, w) thenAlways { w.close() }
-    } recoverWith {
-      case e: StsException => Failure(e)
-      case NonFatal(e) =>
-        Failure(new StsException(s"Error writing key to '$fileName': ${e.getMessage}"))
     }
 
   def writeKey(key: Key, w: Writer): Try[Unit] = {
