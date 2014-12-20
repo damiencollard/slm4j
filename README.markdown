@@ -34,7 +34,7 @@ To sign file `unsigned.txt` using private key `test1` and write the result to `s
 To verify that signed file `signed.txt` is valid (*i.e.*, has not been tampered with):
 
     $ bin/sts.sh verify --public-key test1.pub --input signed.txt
-    License is valid.
+    Signed text is valid.
     $ echo $?
     0
 
@@ -43,13 +43,13 @@ Let's check what happens if we modify a signed file:
     $ cp signed.txt tamperedWith.txt
     $ vim tamperedWith.txt
     $ bin/sts.sh verify --public-key test1.pub --input tamperedWith.txt
-    License is NOT valid.
+    Signed text is NOT valid.
     $ echo $?
     2
 
 ## Example signed file
 
-As an example, here's a license file that was signed by STS:
+As an example, here's a file that was signed by STS:
 
     ----- BEGIN TEXT -----
     RegistredTo=John Smith
@@ -70,4 +70,3 @@ Any changes to the text (or the signature) and the validator will consider
 the file invalid.
 
 [STS on GitHub](https://github.com/damiencollard/sts).
-
