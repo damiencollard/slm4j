@@ -11,7 +11,7 @@ import scala.util.{Failure, Try}
 
 import Control._
 
-class SignedTextCreator {
+class StsSigner {
   def signTextFile(inputFileName: String, privateKey: PrivateKey, outputFileName: String,
                    textMarker: String = defaultTextMarker): Try[Unit] = {
     def doSign() = Try { new FileWriter(outputFileName) } flatMap { writer =>

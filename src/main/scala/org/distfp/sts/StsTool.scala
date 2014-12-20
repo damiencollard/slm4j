@@ -2,7 +2,7 @@ package org.distfp.sts
 
 import java.security.{PrivateKey, PublicKey}
 
-import org.distfp.sts.SignedTextValidator.{SignatureMatch, SignatureMismatch}
+import org.distfp.sts.StsValidator.{SignatureMatch, SignatureMismatch}
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
@@ -103,7 +103,7 @@ object StsTool {
           val textMarker         = getOptParam(ParamTextMarker, Delim.defaultTextMarker)
 
           (for (privateKey <- StsKey.readKey[PrivateKey](privateKeyFileName);
-                creator     = new SignedTextCreator;
+                creator     = new StsSigner;
                 result     <- creator.signTextFile(inputFileName, privateKey, outputFileName, textMarker))
              yield result
           ) match {
@@ -117,7 +117,7 @@ object StsTool {
           val textMarker        = getOptParam(ParamTextMarker, Delim.defaultTextMarker)
 
           (for (publicKey <- StsKey.readKey[PublicKey](publicKeyFileName);
-                validator  = new SignedTextValidator;
+                validator  = new StsValidator;
                 result    <- validator.verifyTextFile(inputFileName, publicKey, textMarker))
              yield result
           ) match {
