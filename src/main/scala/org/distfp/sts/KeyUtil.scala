@@ -83,7 +83,9 @@ object KeyUtil {
   }
 
   def readKey[K <: Key](fileName: String)(implicit kr: KeyReader[K]): Try[K] =
-    Try { new BufferedReader(new FileReader(fileName)) } flatMap { r =>
+    Try { new BufferedReader(new FileReader(fileName)) } recoverWith {
+      case NonFatal(e) => Failure(new StsException("Key file '$fileName' not found", e))
+    }  flatMap { r =>
       kr.readKey(r) thenAlways { r.close() }
     }
 
@@ -92,7 +94,8 @@ object KeyUtil {
 
   def readKeyFromResource[K <: Key](resourceName: String, classLoader: ClassLoader = getClass.getClassLoader)
                                    (implicit kr: KeyReader[K]): Try[K] =
-    Try { new BufferedReader(new InputStreamReader(classLoader.getResourceAsStream(resourceName))) } flatMap { r =>
-      kr.readKey(r)
+    classLoader.getResourceAsStream(resourceName) match {
+      case null   => Failure(new StsException(s"Key resource '$resourceName' not found"))
+      case stream => Try { new BufferedReader(new InputStreamReader(stream)) } flatMap { r => kr.readKey(r) }
     }
 }

@@ -37,7 +37,21 @@ class KeyUtilSpec extends Specification {
     }
   }
 
-  "readFromResource" should {
+  val nonExistent = "sdkflsqkjdfmksqdjmflkj"
+
+  "readKey" should {
+    "raise StsException if the file does not exist" in {
+      readKey[PrivateKey](nonExistent) must beFailedTry[PrivateKey].withThrowable[StsException]
+      readKey[PublicKey](nonExistent) must beFailedTry[PublicKey].withThrowable[StsException]
+    }
+  }
+
+  "readKeyFromResource" should {
+    "raise StsException if the resource does not exist" in {
+      readKeyFromResource[PrivateKey](nonExistent) must beFailedTry[PrivateKey].withThrowable[StsException]
+      readKeyFromResource[PublicKey](nonExistent) must beFailedTry[PublicKey].withThrowable[StsException]
+    }
+
     "read a key from resources" in {
       val pubKeyF = readKey[PublicKey]("src/test/resources/testKey.pub").get
       val pubKeyR = readKeyFromResource[PublicKey]("testKey.pub").get
