@@ -1,4 +1,4 @@
-package org.distfp.sts;
+package net.distfp.sts;
 
 /**
 * A Base64 Encoder/Decoder.

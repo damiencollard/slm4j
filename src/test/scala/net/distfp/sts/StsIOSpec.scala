@@ -1,4 +1,4 @@
-package org.distfp.sts
+package net.distfp.sts
 
 import java.io.{PrintWriter, File}
 import java.util.UUID

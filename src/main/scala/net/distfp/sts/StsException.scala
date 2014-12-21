@@ -23,7 +23,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.distfp.sts
+package net.distfp.sts
 
 /** Exception raised by the slm4j library. */
 class StsException(msg: String, cause: Throwable = null) extends Exception(msg, cause)

@@ -1,4 +1,4 @@
-package org.distfp.sts
+package net.distfp.sts
 
 trait StsText {
   def lines: Seq[String]

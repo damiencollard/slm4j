@@ -1,15 +1,15 @@
-package org.distfp.sts
+package net.distfp.sts
 
 import java.io._
 import java.security._
 
-import org.distfp.sts.StsDelim._
-import org.distfp.sts.StsIO._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
 import StsControl._
+import StsDelim._
+import StsIO._
 
 class StsSigner {
   def signTextFile(inputFileName: String, privateKey: PrivateKey, outputFileName: String,

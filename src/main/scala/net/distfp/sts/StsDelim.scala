@@ -1,4 +1,4 @@
-package org.distfp.sts
+package net.distfp.sts
 
 object StsDelim {
     val defaultTextMarker = "TEXT"

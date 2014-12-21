@@ -1,4 +1,4 @@
-package org.distfp.sts
+package net.distfp.sts
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}

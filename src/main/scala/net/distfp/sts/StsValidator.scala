@@ -1,12 +1,12 @@
-package org.distfp.sts
+package net.distfp.sts
 
 import java.security._
 
-import org.distfp.sts.StsDelim._
-import org.distfp.sts.StsIO._
-
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
+
+import StsDelim._
+import StsIO._
 
 object StsValidator {
   sealed trait SignatureVerification

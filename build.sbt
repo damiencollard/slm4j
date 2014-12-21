@@ -1,8 +1,8 @@
 name := "sts"
 
-version := "1.2"
+version := "1.3"
 
-organization := "org.distfp"
+organization := "net.distfp"
 
 scalaVersion := "2.10.4"
 
@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
 
 TaskKey[Seq[File]]("mksh") <<= (baseDirectory, fullClasspath in Runtime) map { (base, cp) =>
   val tools = Map(
-    "sts.sh" -> "org.distfp.sts.StsTool"
+    "sts.sh" -> "net.distfp.sts.StsTool"
   )
   tools.keys.toList map { scriptName =>
     makeShellScript(base, cp, tools(scriptName), scriptName)

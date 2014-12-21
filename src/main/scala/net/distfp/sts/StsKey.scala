@@ -1,15 +1,15 @@
-package org.distfp.sts
+package net.distfp.sts
 
 import java.io._
 import java.security._
 import java.security.spec.{X509EncodedKeySpec, PKCS8EncodedKeySpec}
 
-import org.distfp.sts.StsIO._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
 import StsControl._
+import StsIO._
 
 object StsKey {
   /** Length of a key line. */

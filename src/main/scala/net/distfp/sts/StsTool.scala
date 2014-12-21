@@ -1,11 +1,11 @@
-package org.distfp.sts
+package net.distfp.sts
 
 import java.security.{PrivateKey, PublicKey}
 
-import org.distfp.sts.StsValidator.{SignatureMatch, SignatureMismatch}
-
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success}
+
+import StsValidator.{SignatureMatch, SignatureMismatch}
 
 object StsTool {
   private val ActionSign    = "sign"
